@@ -4,6 +4,12 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
 </p>
 
+<p align="center">
+  <a href="https://modrinth.com/user/leifiyoo">
+<img alt="modrinth" height="400" src="https://i.imgur.com/YsyRyUT.png">
+  </a>
+</p>
+
 <h1 align="center">🎨 LockiPrefixes</h1>
 
 <p align="center">
