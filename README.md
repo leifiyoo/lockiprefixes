@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.20--1.21-brightgreen?style=for-the-badge&logo=minecraft" alt="Minecraft Version">
-  <img src="https://img.shields.io/badge/Paper-Folia-blue?style=for-the-badge" alt="Paper/Folia">
+  <img src="https://img.shields.io/badge/Minecraft-1.7--1.21-brightgreen?style=for-the-badge&logo=minecraft" alt="Minecraft Version">
+  <img src="https://img.shields.io/badge/Paper%20%2F%20Spigot-Supported-blue?style=for-the-badge" alt="Paper/Spigot">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
 </p>
 
@@ -8,7 +8,7 @@
 
 <p align="center">
   <b>A beautiful chat & tablist formatter for LuckPerms</b><br>
-  Animated gradients • Rank sorting • PlaceholderAPI support
+  Supports Minecraft 1.7 - 1.21 • Animated gradients • Rank sorting
 </p>
 
 ---
@@ -20,10 +20,25 @@
 | 💬 **Chat Formatting** | Custom chat format with prefix, colors, and styles |
 | 📋 **TAB List** | Formatted player names in the TAB list |
 | 🔢 **Rank Sorting** | Higher ranks appear at the top of TAB list |
-| 🔄 **Auto-Update** | TAB list updates when rank changes |
+| 🔄 **Auto-Update** | TAB list updates when rank changes in LuckPerms |
 | 🌈 **Animated Gradients** | Rainbow/gradient animations on rank names |
 | 🔌 **PlaceholderAPI** | Use placeholders in other plugins |
-| ⚡ **Folia Support** | Works on multi-threaded Folia servers |
+| 📦 **Multi-Version** | Supports Minecraft 1.7 to 1.21! |
+
+---
+
+## 📥 Downloads
+
+Choose the right version for your server:
+
+| Build | Minecraft | Server Software |
+|-------|-----------|-----------------|
+| 🟢 `lockiprefixes-latest` | **1.20 - 1.21** | Paper (recommended) |
+| 🔵 `lockiprefixes-modern` | **1.17 - 1.19** | Paper / Spigot |
+| 🟡 `lockiprefixes-mid` | **1.13 - 1.16** | Spigot |
+| 🟠 `lockiprefixes-legacy` | **1.7 - 1.12** | Spigot / Bukkit |
+
+> 💡 **Tip:** Use the `latest` build for Paper 1.20+ servers - it has the best features including animated gradients!
 
 ---
 
@@ -44,13 +59,13 @@ With animated gradients, the rank name smoothly shifts through colors! 🎨
 ## 📥 Installation
 
 ### Step 1: Download
-Download `lockiprefixes-latest-1.0.0.jar` from [Releases](../../releases)
+Download the correct JAR for your Minecraft version from [Releases](../../releases)
 
 ### Step 2: Install
 Put the JAR file in your `plugins/` folder
 
 ### Step 3: Important! ⚠️
-Add this to your `server.properties`:
+**For Paper 1.19+ servers**, add this to your `server.properties`:
 ```properties
 enforce-secure-profile=false
 ```
@@ -105,6 +120,8 @@ groups:
 ---
 
 ## 🌈 Animated Gradients
+
+*Available in the `latest` build (1.20-1.21)*
 
 Make your rank names shift through colors!
 
@@ -161,7 +178,7 @@ tablist:
 &r Reset
 ```
 
-### Hex Colors (RGB)
+### Hex Colors (1.16+)
 ```
 &#FF5555  = Light Red
 &#55FF55  = Light Green
@@ -206,7 +223,7 @@ Use in other plugins:
 
 ## 📋 Requirements
 
-- **Server:** Paper or Folia 1.20 - 1.21+
+- **Server:** Paper, Spigot, or Bukkit (1.7 - 1.21)
 - **Required:** [LuckPerms](https://luckperms.net/)
 - **Optional:** [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/)
 
@@ -214,7 +231,7 @@ Use in other plugins:
 
 ## ❓ FAQ
 
-### Chat not working?
+### Chat not working? (Paper 1.19+)
 Make sure you have `enforce-secure-profile=false` in your `server.properties` and restart the server.
 
 ### TAB list not updating?
@@ -230,17 +247,31 @@ Yes! This plugin is compatible with TAB. You can either:
 - Use LockiPrefixes for everything
 - Or disable LockiPrefixes tablist and use TAB with `%lockiprefixes_formatted%`
 
+### Which build should I use?
+| Your Server | Use This Build |
+|-------------|----------------|
+| Paper 1.20+ | `lockiprefixes-latest` |
+| Spigot 1.17-1.19 | `lockiprefixes-modern` |
+| Spigot 1.13-1.16 | `lockiprefixes-mid` |
+| Spigot 1.7-1.12 | `lockiprefixes-legacy` |
+
 ---
 
 ## 🔨 Building from Source
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/LockiPrefixes.git
-cd LockiPrefixes
-./gradlew :latest:build
-```
+git clone https://github.com/leifiyoo/lockiprefixes.git
+cd lockiprefixes
 
-Output: `latest/build/libs/lockiprefixes-latest-1.0.0.jar`
+# Build all versions
+./gradlew build
+
+# Or build specific version
+./gradlew :latest:build   # 1.20-1.21
+./gradlew :modern:build   # 1.17-1.19
+./gradlew :mid:build      # 1.13-1.16
+./gradlew :legacy:build   # 1.7-1.12
+```
 
 ---
 
@@ -251,5 +282,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Made with ❤️ for the Minecraft community
+  Made with ❤️ for the Minecraft community<br>
+  <b>Supports Minecraft 1.7 - 1.21</b>
 </p>
