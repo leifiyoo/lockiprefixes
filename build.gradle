@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+allprojects {
+    group = 'de.locki'
+    version = '1.0.0'
+
+    repositories {
+        mavenCentral()
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(8)
+        }
+    }
+
+    dependencies {
+        compileOnly 'net.luckperms:api:5.4'
+        compileOnly 'me.clip:placeholderapi:2.11.6'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    jar {
+        archiveBaseName = "lockiprefixes-${project.name}"
+    }
+}

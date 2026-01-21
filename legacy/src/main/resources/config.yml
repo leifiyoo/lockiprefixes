@@ -1,0 +1,112 @@
+# ============================================
+# LockiPrefixes Configuration
+# Version: Legacy (1.7-1.12)
+# ============================================
+
+# General settings
+settings:
+  # Separator between multiple prefixes when using {prefixes}
+  prefix-separator: ""
+  # Separator between multiple suffixes when using {suffixes}
+  suffix-separator: ""
+  # Default username color (if not set in group-formats)
+  default-username-color: "&f"
+  # Default message color (if not set in group-formats)
+  default-message-color: "&f"
+
+# ============================================
+# CHAT FORMAT
+# ============================================
+# Available placeholders:
+#   {world}         - Current world name
+#   {prefix}        - Player's primary prefix from LuckPerms
+#   {prefixes}      - All prefixes sorted by priority
+#   {suffix}        - Player's primary suffix from LuckPerms
+#   {suffixes}      - All suffixes sorted by priority
+#   {name}          - Player's name
+#   {displayname}   - Player's display name/nickname
+#   {username-color} - Username color (from group or meta)
+#   {message-color}  - Message color (from group or meta)
+#   {unicode-prefix} - Custom unicode prefix from group-formats
+#   {message}       - The chat message (only for chat format)
+
+chat:
+  # Default chat format
+  format: "{prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+
+# ============================================
+# LEADERBOARD FORMAT
+# ============================================
+# Used by PlaceholderAPI: %lockiprefixes_leaderboard%
+leaderboard:
+  format: "{prefix}{username-color}{name}{suffix}"
+
+# ============================================
+# GROUP FORMATS
+# ============================================
+# Define custom formats, colors, and unicode prefixes per group.
+# Group names should match your LuckPerms groups (case-insensitive).
+
+group-formats:
+  # Example: Default group
+  default:
+    # Custom chat format for this group (optional)
+    # chat-format: "&7{name}: {message}"
+    # Custom leaderboard format for this group (optional)
+    # leaderboard-format: "&7{name}"
+    # Override prefix for this group (optional)
+    # prefix: "&7"
+    # Override suffix for this group (optional)
+    # suffix: ""
+    # Username color for this group
+    username-color: "&7"
+    # Message color for this group
+    message-color: "&f"
+    # Custom unicode prefix (optional)
+    # unicode-prefix: "●"
+    # Priority for format selection (higher = more priority)
+    priority: 0
+
+  # Example: VIP group
+  vip:
+    username-color: "&a"
+    message-color: "&f"
+    unicode-prefix: "★"
+    priority: 10
+
+  # Example: Admin group
+  admin:
+    chat-format: "&c[Admin] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+    leaderboard-format: "&c[Admin] {prefix}{username-color}{name}{suffix}"
+    username-color: "&c"
+    message-color: "&f"
+    unicode-prefix: "✦"
+    priority: 100
+
+# ============================================
+# WORLD-SPECIFIC FORMATS
+# ============================================
+# Override formats for specific worlds.
+
+world-formats:
+  chat:
+    # Example: Nether world
+    # world_nether: "&4[Nether] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+    # Example: End world
+    # world_the_end: "&5[End] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+  leaderboard:
+    # world_nether: "&4[Nether] {prefix}{username-color}{name}{suffix}"
+
+# ============================================
+# SERVER-SPECIFIC FORMATS (BungeeCord/Velocity)
+# ============================================
+# Override formats for specific servers (uses LuckPerms server context).
+
+server-formats:
+  chat:
+    # Example: Lobby server
+    # lobby: "&e[Lobby] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+    # Example: Survival server
+    # survival: "&2[Survival] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+  leaderboard:
+    # lobby: "&e[Lobby] {prefix}{username-color}{name}{suffix}"

@@ -1,0 +1,88 @@
+# ============================================
+# LockiPrefixes Configuration
+# Version: Modern (1.17-1.19)
+# Full hex color support
+# ============================================
+
+# General settings
+settings:
+  # Separator between multiple prefixes when using {prefixes}
+  prefix-separator: ""
+  # Separator between multiple suffixes when using {suffixes}
+  suffix-separator: ""
+  # Default username color (supports hex: &#RRGGBB or <#RRGGBB>)
+  default-username-color: "&f"
+  # Default message color
+  default-message-color: "&f"
+
+# ============================================
+# CHAT FORMAT
+# ============================================
+# Available placeholders:
+#   {world}         - Current world name
+#   {prefix}        - Player's primary prefix from LuckPerms
+#   {prefixes}      - All prefixes sorted by priority
+#   {suffix}        - Player's primary suffix from LuckPerms
+#   {suffixes}      - All suffixes sorted by priority
+#   {name}          - Player's name
+#   {displayname}   - Player's display name/nickname
+#   {username-color} - Username color (from group or meta)
+#   {message-color}  - Message color (from group or meta)
+#   {unicode-prefix} - Custom unicode prefix from group-formats
+#   {message}       - The chat message (only for chat format)
+#
+# RGB/Hex colors:
+#   &#RRGGBB or <#RRGGBB>
+#   Example: &#FF5555 for red, <#55FF55> for green
+
+chat:
+  # Default chat format
+  format: "{prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+
+# ============================================
+# LEADERBOARD FORMAT
+# ============================================
+# Used by PlaceholderAPI: %lockiprefixes_leaderboard%
+leaderboard:
+  format: "{prefix}{username-color}{name}{suffix}"
+
+# ============================================
+# GROUP FORMATS
+# ============================================
+group-formats:
+  default:
+    username-color: "&7"
+    message-color: "&f"
+    priority: 0
+
+  vip:
+    username-color: "&#55FF55"
+    message-color: "&f"
+    unicode-prefix: "★"
+    priority: 10
+
+  admin:
+    chat-format: "&#FF5555[Admin] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+    leaderboard-format: "&#FF5555[Admin] {prefix}{username-color}{name}{suffix}"
+    username-color: "&#FF5555"
+    message-color: "&f"
+    unicode-prefix: "✦"
+    priority: 100
+
+# ============================================
+# WORLD-SPECIFIC FORMATS
+# ============================================
+world-formats:
+  chat:
+    # world_nether: "&4[Nether] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+  leaderboard:
+    # world_nether: "&4[Nether] {prefix}{username-color}{name}{suffix}"
+
+# ============================================
+# SERVER-SPECIFIC FORMATS (BungeeCord/Velocity)
+# ============================================
+server-formats:
+  chat:
+    # lobby: "&e[Lobby] {prefix}{username-color}{name}{suffix}&r: {message-color}{message}"
+  leaderboard:
+    # lobby: "&e[Lobby] {prefix}{username-color}{name}{suffix}"

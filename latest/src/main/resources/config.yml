@@ -1,0 +1,89 @@
+# ╔════════════════════════════════════════════════════════════════╗
+# ║                    LOCKIPREFIXES CONFIG                        ║
+# ╚════════════════════════════════════════════════════════════════╝
+
+# ══════════════════════════════════════════════════════════════════
+#                         CHAT FORMAT
+# ══════════════════════════════════════════════════════════════════
+# Format: RANK | NAME » MESSAGE
+
+chat:
+  format: "{prefix} &7| &f{name} &7» &f{message}"
+
+
+# ══════════════════════════════════════════════════════════════════
+#                        TAB LIST FORMAT
+# ══════════════════════════════════════════════════════════════════
+
+tablist:
+  format: "{prefix} &7| &f{name}"
+  
+  sorting:
+    enabled: true
+  
+  # Animated gradient for the rank name
+  animation:
+    enabled: true
+    speed: 5
+
+    groups:
+      owner: "#FF0000,#FF3366,#FF0066,#FF00FF,#FF0066,#FF3366,#FF0000"
+      # admin: "#FF0000,#FF5500,#FFAA00,#FF5500,#FF0000"
+      # vip: "#00FF00,#00FFAA,#00FFFF,#00FFAA,#00FF00"
+
+
+# ══════════════════════════════════════════════════════════════════
+#                          RANK FORMATS
+# ══════════════════════════════════════════════════════════════════
+
+groups:
+
+  default:
+    chat-format: "&7{name} &7» &f{message}"
+    tablist-format: "&7{name}"
+    priority: 0
+
+  vip:
+    chat-format: "&a&lVIP &7| &f{name} &7» &f{message}"
+    tablist-format: "&a&lVIP &7| &f{name}"
+    rank-tag: "VIP"
+    priority: 10
+
+  mvp:
+    chat-format: "&b&lMVP &7| &f{name} &7» &f{message}"
+    tablist-format: "&b&lMVP &7| &f{name}"
+    rank-tag: "MVP"
+    priority: 20
+
+  helper:
+    chat-format: "&e&lHelper &7| &f{name} &7» &f{message}"
+    tablist-format: "&e&lHelper &7| &f{name}"
+    rank-tag: "Helper"
+    priority: 50
+
+  moderator:
+    chat-format: "&6&lMod &7| &f{name} &7» &f{message}"
+    tablist-format: "&6&lMod &7| &f{name}"
+    rank-tag: "Mod"
+    priority: 60
+
+  admin:
+    chat-format: "&c&lAdmin &7| &f{name} &7» &f{message}"
+    tablist-format: "&c&lAdmin &7| &f{name}"
+    rank-tag: "Admin"
+    priority: 80
+
+  owner:
+    chat-format: "&4&lOwner &7| &f{name} &7» &f{message}"
+    tablist-format: "&4&lOwner &7| &f{name}"
+    rank-tag: "Owner"
+    priority: 100
+
+
+# ══════════════════════════════════════════════════════════════════
+#                        SETTINGS
+# ══════════════════════════════════════════════════════════════════
+
+settings:
+  default-username-color: "&7"
+  default-message-color: "&f"

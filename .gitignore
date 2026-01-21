@@ -1,0 +1,45 @@
+# Gradle
+.gradle/
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.code-workspace
+.settings/
+.project
+.classpath
+*.launch
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build outputs
+out/
+target/
+bin/
+*.class
+
+# Logs
+*.log
+logs/
+
+# Runtime
+run/
+server/
+
+# Local config
+local.properties
+
+# Temp files
+*.tmp
+*.temp
+*.bak
+*~

@@ -1,0 +1,23 @@
+name: LockiPrefixes
+version: ${version}
+main: de.locki.lockiprefixes.LockiPrefixesPlugin
+api-version: 1.17
+description: LuckPerms prefix/suffix formatter for chat and leaderboards
+authors: [Locki]
+website: https://github.com/locki/lockiprefixes
+depend: [LuckPerms]
+softdepend: [PlaceholderAPI]
+
+commands:
+  lockiprefixes:
+    description: LockiPrefixes admin commands
+    usage: /lockiprefixes <reload>
+    aliases: [lp-prefixes, lpprefix]
+
+permissions:
+  lockiprefixes.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+  lockiprefixes.chatcolor:
+    description: Allows using color codes in chat
+    default: false

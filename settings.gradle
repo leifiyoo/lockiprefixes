@@ -1,0 +1,11 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
+}
+
+rootProject.name = 'lockiprefixes'
+
+include 'core'
+include 'legacy'
+include 'mid'
+include 'modern'
+include 'latest'
