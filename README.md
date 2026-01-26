@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://modrinth.com/user/leifiyoo">
-<img alt="modrinth" height="400" src="https://i.imgur.com/YsyRyUT.png">
+<img alt="modrinth" height="400" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/modrinth_vector.svg">
   </a>
 </p>
 
