@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -52,6 +53,9 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         // Load configuration
         lockiConfig = new LockiConfig();
         lockiConfig.load(getConfig());
+
+        int pluginId = 29406;
+        new Metrics(this, pluginId);
 
         // Check dependencies
         checkDependencies();

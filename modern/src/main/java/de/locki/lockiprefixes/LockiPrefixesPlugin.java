@@ -8,6 +8,7 @@ import de.locki.lockiprefixes.lp.LuckPermsFacade;
 import de.locki.lockiprefixes.papi.LockiPrefixesExpansion;
 import de.locki.lockiprefixes.placeholder.PlayerData;
 import net.luckperms.api.LuckPerms;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,6 +35,9 @@ public class LockiPrefixesPlugin extends JavaPlugin {
         // Load configuration
         lockiConfig = new LockiConfig();
         lockiConfig.load(getConfig());
+
+        int pluginId = 29406;
+        new Metrics(this, pluginId);
 
         // Initialize LuckPerms
         LuckPerms luckPerms = loadLuckPerms();
