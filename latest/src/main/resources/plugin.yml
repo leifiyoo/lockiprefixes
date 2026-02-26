@@ -2,7 +2,6 @@ name: LockiPrefixes
 version: ${version}
 main: de.locki.lockiprefixes.LockiPrefixesPlugin
 api-version: "1.20"
-folia-supported: true
 description: LuckPerms prefix/suffix formatter for chat and leaderboards
 authors: [Locki]
 website: https://github.com/locki/lockiprefixes
@@ -10,9 +9,9 @@ softdepend: [LuckPerms, PlaceholderAPI]
 
 commands:
   lockiprefixes:
-    description: LockiPrefixes admin commands
-    usage: /lockiprefixes <reload>
-    aliases: [lp-prefixes, lpprefix]
+    description: LockiPrefixes - Rank style manager
+    usage: /lockiprefixes <menu|reload>
+    aliases: [lpx]
 
 permissions:
   lockiprefixes.reload:
@@ -24,3 +23,6 @@ permissions:
   lockiprefixes.notify:
     description: Receives notifications about missing dependencies
     default: op
+  lockiprefixes.menu:
+    description: Allows opening the Prefix Manager GUI
+    default: true

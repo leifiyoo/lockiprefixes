@@ -40,20 +40,29 @@ public class BuiltInPlaceholders {
         // {name}
         result = result.replace("{name}", playerData.getName() != null ? playerData.getName() : "");
 
+        // {user} alias for {name}
+        result = result.replace("{user}", playerData.getName() != null ? playerData.getName() : "");
+
         // {displayname}
         result = result.replace("{displayname}", playerData.getDisplayName() != null ? playerData.getDisplayName() : playerData.getName());
 
-        // {prefix} - primary prefix from LuckPerms
-        String prefix = playerData.getPrefix();
-        result = result.replace("{prefix}", prefix != null ? prefix : "");
+        // {prefix} - player meta override first, then LuckPerms prefix
+        String prefix = playerData.getMetaValue("prefix");
+        if (prefix == null || prefix.isEmpty()) {
+            prefix = playerData.getPrefix();
+        }
+        result = replacePrefixPlaceholder(result, prefix);
 
         // {prefixes} - all prefixes sorted by priority, joined
         List<String> prefixes = playerData.getPrefixes();
         String prefixesJoined = prefixes != null ? String.join(config.getPrefixSeparator(), prefixes) : "";
         result = result.replace("{prefixes}", prefixesJoined);
 
-        // {suffix} - primary suffix from LuckPerms
-        String suffix = playerData.getSuffix();
+        // {suffix} - player meta override first, then LuckPerms suffix
+        String suffix = playerData.getMetaValue("suffix");
+        if (suffix == null || suffix.isEmpty()) {
+            suffix = playerData.getSuffix();
+        }
         result = result.replace("{suffix}", suffix != null ? suffix : "");
 
         // {suffixes} - all suffixes sorted by priority, joined
@@ -70,6 +79,17 @@ public class BuiltInPlaceholders {
         result = result.replace("{message-color}", messageColor);
 
         return result;
+    }
+
+    private String replacePrefixPlaceholder(String format, String prefix) {
+        if (prefix != null && !prefix.trim().isEmpty()) {
+            return format.replace("{prefix}", prefix);
+        }
+
+        String cleaned = format;
+        cleaned = cleaned.replaceAll("\\{prefix\\}\\s*(?:(?:[&§][0-9A-FK-ORXa-fk-orx])+\\s*)?\\|\\s*", "");
+        cleaned = cleaned.replace("{prefix}", "");
+        return cleaned;
     }
 
     /**

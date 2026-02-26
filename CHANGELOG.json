@@ -1,0 +1,25 @@
+{
+  "project": "LockiPrefixes",
+  "latestVersion": "3.0.0",
+  "updatedAt": "2026-02-26",
+  "entries": [
+    {
+      "version": "3.0.0",
+      "date": "2026-02-26",
+      "changes": [
+        "Set project version to 3.0.0 in all modules.",
+        "Added automatic update checks (startup + daily) with OP notifications.",
+        "Added a TAB plugin guide file for direct GitHub access.",
+        "Fixed orphan separator issue in chat/leaderboard when a rank has no prefix.",
+        "Fixed regex escaping issue that caused chat formatting exceptions."
+      ]
+    },
+    {
+      "version": "2.x",
+      "date": "legacy",
+      "changes": [
+        "Releases published before structured changelog metadata."
+      ]
+    }
+  ]
+}

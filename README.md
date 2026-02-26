@@ -1,293 +1,138 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.7--1.21-brightgreen?style=for-the-badge&logo=minecraft" alt="Minecraft Version">
-  <img src="https://img.shields.io/badge/Paper%20%2F%20Spigot-Supported-blue?style=for-the-badge" alt="Paper/Spigot">
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
-</p>
+﻿<div align="center">
 
-<p align="center">
-  <a href="https://modrinth.com/user/leifiyoo">
-<img alt="modrinth" height="400" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/modrinth_vector.svg">
-  </a>
-</p>
+```
+  _               _   _ ____            __ _
+ | |    ___   ___| | _(_)  _ \ _ __ ___|  (_)_  _____  ___
+ | |   / _ \ / __| |/ / | |_) | '__/ _ \ |  \ \/ / _ \/ __|
+ | |__| (_) | (__|   <| |  __/| | |  __/ | |  >  <  __/\__ \
+ |_____\___/ \___|_|\_\_|_|   |_|  \___|_|_| /_/\_\___||___/
+```
 
-<h1 align="center">🎨 LockiPrefixes</h1>
+**Rank-based chat & tablist formatting for Paper servers.**  
+Set up everything in-game  no YAML editing required.
 
-<p align="center">
-  <b>A beautiful chat & tablist formatter for LuckPerms</b><br>
-  Supports Minecraft 1.7 - 1.21 • Animated gradients • Rank sorting
-</p>
+[![MC](https://img.shields.io/badge/Minecraft-1.8--1.21-brightgreen?style=flat-square)](https://papermc.io)
+[![Paper](https://img.shields.io/badge/Paper-1.8%2B-5865F2?style=flat-square)](https://papermc.io)
+[![LuckPerms](https://img.shields.io/badge/Requires-LuckPerms-orange?style=flat-square)](https://luckperms.net)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)](LICENSE)
+
+</div>
 
 ---
 
-## ✨ Features
+## What it does
 
-| Feature | Description |
-|---------|-------------|
-| 💬 **Chat Formatting** | Custom chat format with prefix, colors, and styles |
-| 📋 **TAB List** | Formatted player names in the TAB list |
-| 🔢 **Rank Sorting** | Higher ranks appear at the top of TAB list |
-| 🔄 **Auto-Update** | TAB list updates when rank changes in LuckPerms |
-| 🌈 **Animated Gradients** | Rainbow/gradient animations on rank names |
-| 🔌 **PlaceholderAPI** | Use placeholders in other plugins |
-| 📦 **Multi-Version** | Supports Minecraft 1.7 to 1.21! |
+- In-game **rank editor**  create ranks, pick a style, done
+- Chat format and tablist name **auto-derived** from a single template
+- **LuckPerms group created automatically** when you create a rank
+- Works with the [TAB](https://github.com/NEZNAMY/TAB) plugin out of the box
+- Hot-reload  no server restart needed- Supports **Minecraft 1.8 through 1.21**
+> **Required:** Set `enforce-secure-profile=false` in `server.properties` for chat formatting to work.
 
 ---
 
-## 📥 Downloads
+## Setup
 
-Choose the right version for your server:
+**1. Requirements**
 
-| Build | Minecraft | Server Software |
-|-------|-----------|-----------------|
-| 🟢 `lockiprefixes-latest` | **1.20 - 1.21** | Paper (recommended) |
-| 🔵 `lockiprefixes-modern` | **1.17 - 1.19** | Paper / Spigot |
-| 🟡 `lockiprefixes-mid` | **1.13 - 1.16** | Spigot |
-| 🟠 `lockiprefixes-legacy` | **1.7 - 1.12** | Spigot / Bukkit |
+| | Min. Version |
+|---|---|
+| Java | 8 (1.8–1.16) / 16 (1.17–1.19) / 21 (1.20+) |
+| Paper / Spigot | 1.8 |
+| [LuckPerms](https://luckperms.net/) | latest |
+| [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) | latest *(only needed for TAB integration)* |
 
-> 💡 **Tip:** Use the `latest` build for Paper 1.20+ servers - it has the best features including animated gradients!
+**2. Pick the right JAR**
+
+| JAR | Minecraft version |
+|---|---|
+| `lockiprefixes-legacy-x.x.x.jar` | 1.8 – 1.12 |
+| `lockiprefixes-mid-x.x.x.jar` | 1.13 – 1.18 |
+| `lockiprefixes-modern-x.x.x.jar` | 1.19 – 1.19.4 |
+| `lockiprefixes-latest-x.x.x.jar` | 1.20 – 1.21 |
+
+Drop the matching JAR into `plugins/` and restart.  
+A `config.yml` is generated automatically.
+
+**3. In-game**
+
+```
+/lpx menu
+```
 
 ---
 
-## 📸 Preview
+## Commands
 
-```
-Chat:    Owner | Steve » Hello everyone!
-TAB:     Owner | Steve
-         Admin | Alex
-         VIP   | Bob
-         Player
-```
+| Command | What it does |
+|---|---|
+| `/lpx menu` | Open the rank manager |
+| `/lpx reload` | Reload config |
 
-With animated gradients, the rank name smoothly shifts through colors! 🎨
+Permission: `lockiprefixes.menu` / `lockiprefixes.reload`
 
 ---
 
-## 📥 Installation
+## Config
 
-### Step 1: Download
-Download the correct JAR for your Minecraft version from [Releases](../../releases)
+`plugins/LockiPrefixes/config.yml`  normally you don't touch this, the GUI writes it for you.
 
-### Step 2: Install
-Put the JAR file in your `plugins/` folder
-
-### Step 3: Important! ⚠️
-**For Paper 1.19+ servers**, add this to your `server.properties`:
-```properties
-enforce-secure-profile=false
-```
-
-### Step 4: Restart
-Restart your server and edit `plugins/LockiPrefixes/config.yml`
-
----
-
-## 📝 Configuration
-
-### Chat Format
-```yaml
-chat:
-  format: "{prefix} &7| &f{name} &7» &f{message}"
-```
-
-**Result:** `Owner | Steve » Hello!`
-
-### TAB List Format
-```yaml
-tablist:
-  format: "{prefix} &7| &f{name}"
-  sorting:
-    enabled: true  # Sort by rank priority
-```
-
-### Rank Setup
 ```yaml
 groups:
   owner:
-    chat-format: "&4&lOwner &7| &f{name} &7» &f{message}"
-    tablist-format: "&4&lOwner &7| &f{name}"
-    rank-tag: "Owner"
-    priority: 100  # Higher = top of TAB list
-
-  admin:
-    chat-format: "&c&lAdmin &7| &f{name} &7» &f{message}"
-    tablist-format: "&c&lAdmin &7| &f{name}"
-    rank-tag: "Admin"
-    priority: 80
-
-  vip:
-    chat-format: "&a&lVIP &7| &f{name} &7» &f{message}"
-    tablist-format: "&a&lVIP &7| &f{name}"
-    rank-tag: "VIP"
-    priority: 10
+    chat-format:    "&4&lOwner &8| &f{name} &7{message}"
+    tablist-format: "&4&lOwner &8| &f{name}"
+    priority:       100
 ```
-
-> 💡 **Tip:** The group names must match your LuckPerms groups exactly!
 
 ---
 
-## 🌈 Animated Gradients
+## TAB Plugin
 
-*Available in the `latest` build (1.20-1.21)*
+LockiPrefixes auto-detects TAB and disables its own tablist module.
 
-Make your rank names shift through colors!
+Edit `plugins/TAB/groups.yml`:
 
 ```yaml
-tablist:
-  animation:
-    enabled: true
-    speed: 5  # Lower = faster animation
-
-    groups:
-      # Rainbow effect
-      owner: "#FF0000,#FF7F00,#FFFF00,#00FF00,#0000FF,#8B00FF,#FF0000"
-      
-      # Fire effect (red-orange)
-      admin: "#FF0000,#FF5500,#FFAA00,#FF5500,#FF0000"
-      
-      # Ocean effect (blue-cyan)
-      vip: "#0000FF,#0055FF,#00AAFF,#00FFFF,#00AAFF,#0055FF,#0000FF"
+_DEFAULT_:
+  tabprefix:      ""
+  tabsuffix:      ""
+  customtabname:  "%lockiprefixes_tablist%"
+  tagprefix:      "%luckperms-prefix%"
 ```
 
-### Preset Gradients
-
-| Name | Colors | Preview |
-|------|--------|---------|
-| 🌈 Rainbow | `#FF0000,#FF7F00,#FFFF00,#00FF00,#0000FF,#8B00FF,#FF0000` | Red→Orange→Yellow→Green→Blue→Purple |
-| 🔥 Fire | `#FF0000,#FF5500,#FFAA00,#FF5500,#FF0000` | Red→Orange→Red |
-| 🌊 Ocean | `#0000FF,#0055FF,#00AAFF,#00FFFF,#00AAFF,#0055FF` | Blue→Cyan→Blue |
-| 💜 Galaxy | `#FF00FF,#AA00FF,#5500FF,#AA00FF,#FF00FF` | Pink→Purple→Pink |
-| 💚 Nature | `#00FF00,#55FF00,#AAFF00,#55FF00,#00FF00` | Green→Lime→Green |
-| ❄️ Ice | `#FFFFFF,#AAFFFF,#55FFFF,#AAFFFF,#FFFFFF` | White→Cyan→White |
+Then run `/tab reload`.
 
 ---
 
-## 🎨 Color Codes
+## Placeholders
 
-### Legacy Colors
-```
-&0 Black       &8 Dark Gray
-&1 Dark Blue   &9 Blue
-&2 Dark Green  &a Green
-&3 Dark Aqua   &b Aqua
-&4 Dark Red    &c Red
-&5 Purple      &d Pink
-&6 Gold        &e Yellow
-&7 Gray        &f White
-```
-
-### Formatting
-```
-&l Bold
-&o Italic
-&n Underline
-&m Strikethrough
-&r Reset
-```
-
-### Hex Colors (1.16+)
-```
-&#FF5555  = Light Red
-&#55FF55  = Light Green
-&#5555FF  = Light Blue
-&#FFAA00  = Orange
-```
+| Placeholder | Returns |
+|---|---|
+| `%lockiprefixes_prefix%` | Rank prefix only (e.g. `&4&lOwner `) |
+| `%lockiprefixes_tablist%` | Prefix + separator + name  use in TAB |
+| `%lockiprefixes_name%` | Prefix directly followed by player name |
 
 ---
 
-## 📦 Placeholders
-
-### Built-in Placeholders
-Use these in your format strings:
-
-| Placeholder | Description |
-|-------------|-------------|
-| `{name}` | Player name |
-| `{displayname}` | Nickname |
-| `{prefix}` | LuckPerms prefix |
-| `{suffix}` | LuckPerms suffix |
-| `{message}` | Chat message |
-
-### PlaceholderAPI
-Use in other plugins:
-
-| Placeholder | Output |
-|-------------|--------|
-| `%lockiprefixes_prefix%` | Player's prefix |
-| `%lockiprefixes_suffix%` | Player's suffix |
-| `%lockiprefixes_group%` | Primary group |
-| `%lockiprefixes_formatted%` | Full formatted name |
-
----
-
-## 💻 Commands
-
-| Command | Permission | Description |
-|---------|------------|-------------|
-| `/lockiprefixes reload` | `lockiprefixes.reload` | Reload configuration |
-
----
-
-## 📋 Requirements
-
-- **Server:** Paper, Spigot, or Bukkit (1.7 - 1.21)
-- **Required:** [LuckPerms](https://luckperms.net/)
-- **Optional:** [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/)
-
----
-
-## ❓ FAQ
-
-### Chat not working? (Paper 1.19+)
-Make sure you have `enforce-secure-profile=false` in your `server.properties` and restart the server.
-
-### TAB list not updating?
-1. Make sure LuckPerms is installed
-2. Player must have a group assigned
-3. Try `/lockiprefixes reload`
-
-### How to disable animations?
-Set `animation.enabled: false` in config.yml
-
-### Can I use this with TAB plugin?
-Yes! This plugin is compatible with TAB. You can either:
-- Use LockiPrefixes for everything
-- Or disable LockiPrefixes tablist and use TAB with `%lockiprefixes_formatted%`
-
-### Which build should I use?
-| Your Server | Use This Build |
-|-------------|----------------|
-| Paper 1.20+ | `lockiprefixes-latest` |
-| Spigot 1.17-1.19 | `lockiprefixes-modern` |
-| Spigot 1.13-1.16 | `lockiprefixes-mid` |
-| Spigot 1.7-1.12 | `lockiprefixes-legacy` |
-
----
-
-## 🔨 Building from Source
+## Build from source
 
 ```bash
-git clone https://github.com/leifiyoo/lockiprefixes.git
+git clone https://github.com/locki/lockiprefixes.git
 cd lockiprefixes
 
-# Build all versions
-./gradlew build
+# Build a specific version
+./gradlew :legacy:shadowJar -x test   # 1.8–1.12
+./gradlew :mid:shadowJar -x test      # 1.13–1.18
+./gradlew :modern:shadowJar -x test   # 1.19–1.19.4
+./gradlew :latest:shadowJar -x test   # 1.20–1.21
 
-# Or build specific version
-./gradlew :latest:build   # 1.20-1.21
-./gradlew :modern:build   # 1.17-1.19
-./gradlew :mid:build      # 1.13-1.16
-./gradlew :legacy:build   # 1.7-1.12
+# Or build all at once
+./gradlew shadowJar -x test
 ```
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Output JARs land in `<module>/build/libs/`.
 
 ---
 
-<p align="center">
-  Made with ❤️ for the Minecraft community<br>
-  <b>Supports Minecraft 1.7 - 1.21</b>
-</p>
+<div align="center">MIT License  free to use, modify, redistribute.</div>

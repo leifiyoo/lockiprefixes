@@ -4,10 +4,14 @@ import de.locki.lockiprefixes.chat.AdventureChatListener;
 import de.locki.lockiprefixes.command.ReloadCommand;
 import de.locki.lockiprefixes.config.LockiConfig;
 import de.locki.lockiprefixes.format.ChatFormatter;
+import de.locki.lockiprefixes.gui.PrefixChatInputListener;
+import de.locki.lockiprefixes.gui.PrefixGuiListener;
+import de.locki.lockiprefixes.gui.PrefixMenuManager;
 import de.locki.lockiprefixes.lp.LuckPermsFacade;
 import de.locki.lockiprefixes.papi.LockiPrefixesExpansion;
 import de.locki.lockiprefixes.placeholder.PlayerData;
 import de.locki.lockiprefixes.tablist.TablistManager;
+import de.locki.lockiprefixes.update.UpdateNotifier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -31,15 +35,21 @@ import java.util.List;
  */
 public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
 
+    private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/locki/lockiprefixes/main/CHANGELOG.json";
+    private static final String CHANGELOG_PAGE_URL = "https://github.com/locki/lockiprefixes/blob/main/CHANGELOG.json";
+
     private static LockiPrefixesPlugin instance;
 
     private LockiConfig lockiConfig;
     private LuckPermsFacade luckPermsFacade;
     private ChatFormatter chatFormatter;
     private TablistManager tablistManager;
+    private PrefixMenuManager prefixMenuManager;
+    private UpdateNotifier updateNotifier;
     
     private boolean luckPermsAvailable = false;
     private boolean placeholderApiAvailable = false;
+    private boolean tabPluginAvailable = false;
     private boolean secureProfileEnforced = true;
     private final List<String> missingDependencies = new ArrayList<>();
 
@@ -78,9 +88,18 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
                     this
                 );
                 
-                // Register tablist manager
-                tablistManager = new TablistManager(this, chatFormatter, luckPermsFacade);
-                getServer().getPluginManager().registerEvents(tablistManager, this);
+                // Register tablist manager only when TAB plugin is NOT present
+                if (!tabPluginAvailable) {
+                    tablistManager = new TablistManager(this, chatFormatter, luckPermsFacade);
+                    getServer().getPluginManager().registerEvents(tablistManager, this);
+                } else {
+                    getLogger().info("TAB plugin detected - internal tablist disabled. Use placeholder %lockiprefixes_formatted% in TAB.");
+                }
+
+                // Initialize Prefix Manager GUI
+                prefixMenuManager = new PrefixMenuManager(this, luckPermsFacade);
+                getServer().getPluginManager().registerEvents(new PrefixGuiListener(prefixMenuManager), this);
+                getServer().getPluginManager().registerEvents(new PrefixChatInputListener(prefixMenuManager), this);
             } else {
                 luckPermsAvailable = false;
                 missingDependencies.add("LuckPerms");
@@ -90,8 +109,14 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         // Register admin join listener for notifications
         getServer().getPluginManager().registerEvents(this, this);
 
-        // Register command
-        getCommand("lockiprefixes").setExecutor(new ReloadCommand(this));
+        updateNotifier = new UpdateNotifier(this, CHANGELOG_RAW_URL, CHANGELOG_PAGE_URL);
+        updateNotifier.start();
+
+        // Register commands
+        ReloadCommand reloadCommand = new ReloadCommand(this);
+        reloadCommand.setMenuManager(prefixMenuManager);
+        getCommand("lockiprefixes").setExecutor(reloadCommand);
+        getCommand("lockiprefixes").setTabCompleter(reloadCommand);
 
         // Register PlaceholderAPI expansion if available
         if (placeholderApiAvailable && chatFormatter != null) {
@@ -136,6 +161,9 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        if (updateNotifier != null) {
+            updateNotifier.stop();
+        }
         if (luckPermsFacade != null) {
             luckPermsFacade.clearCache();
         }
@@ -158,8 +186,13 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
             missingDependencies.add("PlaceholderAPI (optional)");
             getLogger().warning("PlaceholderAPI not found. PAPI placeholders will not be available.");
         }
+
+        // Detect TAB plugin (any common variant)
+        tabPluginAvailable = getServer().getPluginManager().getPlugin("TAB") != null
+            || getServer().getPluginManager().getPlugin("tab-master") != null
+            || getServer().getPluginManager().getPlugin("TABReborn") != null;
     }
-    
+
     private void checkSecureProfile() {
         secureProfileEnforced = false; // Default to false, only warn if we confirm it's enabled
         
@@ -282,6 +315,60 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
             }
         }
         getLogger().info("Configuration reloaded.");
+    }
+
+    /**
+     * Updates groups.<group>.chat-format in config.yml and reloads runtime state.
+     */
+    public void updateGroupChatFormat(String groupName, String chatFormat) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return;
+        }
+        String normalized = groupName.toLowerCase();
+        String chatKey = "groups." + normalized + ".chat-format";
+        String tabKey = "groups." + normalized + ".tablist-format";
+        getConfig().set(chatKey, chatFormat);
+
+        String tabFormat = PrefixMenuManager.deriveTablistFormat(chatFormat);
+        getConfig().set(tabKey, tabFormat);
+
+        saveConfig();
+        reload();
+    }
+
+    /**
+     * Creates (or updates) a group block in config with baseline fields.
+     */
+    public void ensureGroupExists(String groupName, String chatFormat, String tablistFormat, int priority) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return;
+        }
+
+        String normalized = groupName.toLowerCase();
+        String base = "groups." + normalized + ".";
+
+        if (getConfig().getString(base + "chat-format") == null) {
+            getConfig().set(base + "chat-format", chatFormat);
+        }
+        if (getConfig().getString(base + "tablist-format") == null) {
+            getConfig().set(base + "tablist-format", tablistFormat);
+        }
+        if (getConfig().getString(base + "rank-tag") == null) {
+            getConfig().set(base + "rank-tag", capitalize(normalized));
+        }
+        if (!getConfig().contains(base + "priority")) {
+            getConfig().set(base + "priority", priority);
+        }
+
+        saveConfig();
+        reload();
+    }
+
+    private String capitalize(String value) {
+        if (value == null || value.isEmpty()) {
+            return "Rank";
+        }
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1);
     }
 
     public static LockiPrefixesPlugin getInstance() {

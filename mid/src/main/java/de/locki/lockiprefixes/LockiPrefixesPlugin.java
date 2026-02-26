@@ -4,9 +4,13 @@ import de.locki.lockiprefixes.chat.MidChatListener;
 import de.locki.lockiprefixes.command.ReloadCommand;
 import de.locki.lockiprefixes.config.LockiConfig;
 import de.locki.lockiprefixes.format.ChatFormatter;
+import de.locki.lockiprefixes.gui.PrefixChatInputListener;
+import de.locki.lockiprefixes.gui.PrefixGuiListener;
+import de.locki.lockiprefixes.gui.PrefixMenuManager;
 import de.locki.lockiprefixes.lp.LuckPermsFacade;
 import de.locki.lockiprefixes.papi.LockiPrefixesExpansion;
 import de.locki.lockiprefixes.placeholder.PlayerData;
+import de.locki.lockiprefixes.update.UpdateNotifier;
 import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
@@ -19,12 +23,17 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class LockiPrefixesPlugin extends JavaPlugin {
 
+    private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/locki/lockiprefixes/main/CHANGELOG.json";
+    private static final String CHANGELOG_PAGE_URL = "https://github.com/locki/lockiprefixes/blob/main/CHANGELOG.json";
+
     private static LockiPrefixesPlugin instance;
 
     private LockiConfig lockiConfig;
     private LuckPermsFacade luckPermsFacade;
     private ChatFormatter chatFormatter;
+    private PrefixMenuManager prefixMenuManager;
     private boolean supportsHex;
+    private UpdateNotifier updateNotifier;
 
     @Override
     public void onEnable() {
@@ -61,8 +70,19 @@ public class LockiPrefixesPlugin extends JavaPlugin {
             this
         );
 
-        // Register command
-        getCommand("lockiprefixes").setExecutor(new ReloadCommand(this));
+        // Initialize Prefix Manager GUI
+        prefixMenuManager = new PrefixMenuManager(this, luckPermsFacade);
+        getServer().getPluginManager().registerEvents(new PrefixGuiListener(prefixMenuManager), this);
+        getServer().getPluginManager().registerEvents(new PrefixChatInputListener(prefixMenuManager), this);
+
+        // Register commands
+        ReloadCommand reloadCommand = new ReloadCommand(this);
+        reloadCommand.setMenuManager(prefixMenuManager);
+        getCommand("lockiprefixes").setExecutor(reloadCommand);
+        getCommand("lockiprefixes").setTabCompleter(reloadCommand);
+        if (getCommand("prefixmenu") != null) {
+            getCommand("prefixmenu").setExecutor(reloadCommand);
+        }
 
         // Register PlaceholderAPI expansion if available
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -70,11 +90,17 @@ public class LockiPrefixesPlugin extends JavaPlugin {
             getLogger().info("PlaceholderAPI expansion registered.");
         }
 
+        updateNotifier = new UpdateNotifier(this, CHANGELOG_RAW_URL, CHANGELOG_PAGE_URL);
+        updateNotifier.start();
+
         getLogger().info("LockiPrefixes (Mid 1.13-1.16) enabled! Hex support: " + supportsHex);
     }
 
     @Override
     public void onDisable() {
+        if (updateNotifier != null) {
+            updateNotifier.stop();
+        }
         if (luckPermsFacade != null) {
             luckPermsFacade.clearCache();
         }

@@ -9,9 +9,9 @@ softdepend: [PlaceholderAPI]
 
 commands:
   lockiprefixes:
-    description: LockiPrefixes admin commands
-    usage: /lockiprefixes <reload>
-    aliases: [lp-prefixes, lpprefix]
+    description: LockiPrefixes — Rank Manager
+    usage: /lockiprefixes <menu|reload>
+    aliases: [lpx]
 
 permissions:
   lockiprefixes.reload:
@@ -20,3 +20,6 @@ permissions:
   lockiprefixes.chatcolor:
     description: Allows using color codes in chat
     default: false
+  lockiprefixes.menu:
+    description: Allows opening the Prefix Manager GUI
+    default: true

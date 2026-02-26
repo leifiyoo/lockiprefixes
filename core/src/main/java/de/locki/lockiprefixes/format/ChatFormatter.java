@@ -60,12 +60,19 @@ public class ChatFormatter {
      * @return The formatted chat string
      */
     public String formatChat(PlayerData playerData, String message) {
-        // Resolve format based on context
-        String format = formatResolver.resolveChatFormat(
-            playerData.getPrimaryGroup(),
-            playerData.getWorld(),
-            playerData.getServer()
-        );
+        // Player-specific override first (works like config format but per-player)
+        String format = playerData.getMetaValue("chat-format");
+        if (format == null || format.trim().isEmpty()) {
+            // Resolve format based on context
+            format = formatResolver.resolveChatFormat(
+                playerData.getPrimaryGroup(),
+                playerData.getWorld(),
+                playerData.getServer()
+            );
+        }
+
+        // Normalize alias to keep config-compatible placeholder set
+        format = format.replace("{user}", "{name}");
 
         // Replace built-in placeholders
         String result = builtInPlaceholders.replace(format, playerData);
