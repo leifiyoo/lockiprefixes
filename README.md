@@ -118,7 +118,7 @@ Then run `/tab reload`.
 ## Build from source
 
 ```bash
-git clone https://github.com/locki/lockiprefixes.git
+git clone https://github.com/leifiyoo/lockiprefixes.git
 cd lockiprefixes
 
 # Build a specific version

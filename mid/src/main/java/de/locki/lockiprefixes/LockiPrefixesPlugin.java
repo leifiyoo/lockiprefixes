@@ -23,8 +23,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class LockiPrefixesPlugin extends JavaPlugin {
 
-    private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/locki/lockiprefixes/main/CHANGELOG.json";
-    private static final String CHANGELOG_PAGE_URL = "https://github.com/locki/lockiprefixes/blob/main/CHANGELOG.json";
+    private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/leifiyoo/lockiprefixes/main/CHANGELOG.json";
+    private static final String CHANGELOG_PAGE_URL = "https://github.com/leifiyoo/lockiprefixes/blob/main/CHANGELOG.json";
 
     private static LockiPrefixesPlugin instance;
 
@@ -78,15 +78,20 @@ public class LockiPrefixesPlugin extends JavaPlugin {
         // Register commands
         ReloadCommand reloadCommand = new ReloadCommand(this);
         reloadCommand.setMenuManager(prefixMenuManager);
-        getCommand("lockiprefixes").setExecutor(reloadCommand);
-        getCommand("lockiprefixes").setTabCompleter(reloadCommand);
+        org.bukkit.command.PluginCommand cmd = getCommand("lockiprefixes");
+        if (cmd != null) {
+            cmd.setExecutor(reloadCommand);
+            cmd.setTabCompleter(reloadCommand);
+        } else {
+            getLogger().severe("Command 'lockiprefixes' not found in plugin.yml — skipping registration.");
+        }
         if (getCommand("prefixmenu") != null) {
             getCommand("prefixmenu").setExecutor(reloadCommand);
         }
 
         // Register PlaceholderAPI expansion if available
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new LockiPrefixesExpansion(this, chatFormatter, this::createPlayerData).register();
+            new LockiPrefixesExpansion(this, this::getChatFormatter, this::createPlayerData).register();
             getLogger().info("PlaceholderAPI expansion registered.");
         }
 
@@ -104,6 +109,7 @@ public class LockiPrefixesPlugin extends JavaPlugin {
         if (luckPermsFacade != null) {
             luckPermsFacade.clearCache();
         }
+        instance = null;
         getLogger().info("LockiPrefixes disabled.");
     }
 
@@ -116,14 +122,15 @@ public class LockiPrefixesPlugin extends JavaPlugin {
     private boolean checkHexSupport() {
         try {
             String version = getServer().getBukkitVersion();
-            // 1.16+ supports hex colors
-            if (version.contains("1.16") || version.contains("1.17") || 
-                version.contains("1.18") || version.contains("1.19") ||
-                version.contains("1.20") || version.contains("1.21")) {
-                return true;
+            // Extract the minor version number (e.g. "1.16.5-R0.1-SNAPSHOT" -> 16)
+            // Hex colors were introduced in MC 1.16; any future version also supports them.
+            String[] parts = version.split("[-. ]");
+            if (parts.length >= 2) {
+                int minor = Integer.parseInt(parts[1]);
+                return minor >= 16;
             }
         } catch (Exception e) {
-            getLogger().warning("Could not determine server version for hex support.");
+            getLogger().warning("Could not determine server version for hex support: " + e.getMessage());
         }
         return false;
     }

@@ -7,11 +7,28 @@
       "version": "3.0.0",
       "date": "2026-02-26",
       "changes": [
-        "Set project version to 3.0.0 in all modules.",
-        "Added automatic update checks (startup + daily) with OP notifications.",
-        "Added a TAB plugin guide file for direct GitHub access.",
-        "Fixed orphan separator issue in chat/leaderboard when a rank has no prefix.",
-        "Fixed regex escaping issue that caused chat formatting exceptions."
+        "Set project version to 3.0.0 across all modules.",
+        "Fixed NPE in TablistManager when applyAnimatedGradient returned null (animation fallback now uses normal format).",
+        "Fixed stale ChatFormatter reference in PlaceholderAPI expansion after /reload — expansion now resolves formatter via Supplier.",
+        "Fixed ConcurrentModificationException — all LockiConfig internal maps changed to ConcurrentHashMap for safe async chat access.",
+        "Fixed scoreboard team name collision for similar player names — teams now use a UUID-based suffix instead of truncated player name.",
+        "Fixed scoreboard team memory leak on player disconnect — team entries are now cleaned up and empty teams unregistered.",
+        "Fixed thenRunAsync() in mid/modern PrefixMenuManager using ForkJoinPool for Bukkit API calls — now routes through Bukkit scheduler executor.",
+        "Fixed missing error handling on createGroup() and groupExists() CompletableFuture chains — players now receive error feedback and menu reopens on failure.",
+        "Fixed hex color support detection for MC 1.22+ in mid module — now uses minor-version numeric comparison instead of an explicit allowlist.",
+        "Fixed UpdateNotifier: Pattern.compile() calls moved to static final fields; BufferedReader now uses try-with-resources; latestVersion written before updateAvailable to prevent TOCTOU stale-version display.",
+        "Removed dead cache map and CachedPlayerData class from LuckPermsFacade — LuckPerms manages its own cache; null user now logs a warning instead of silently producing empty prefixes.",
+        "Fixed static instance field not cleared in onDisable() across all modules — prevents stale plugin reference after unload.",
+        "Fixed getCommand() NullPointerException — null-checked before chaining setExecutor/setTabCompleter in all modules.",
+        "Fixed MidChatListener and ModernChatListener caching old ChatFormatter — now calls plugin.getChatFormatter() per event so /reload takes effect immediately.",
+        "Fixed saveConfig() blocking the main server tick — moved to async task with main-thread reload callback in latest module.",
+        "Fixed server.properties path read from relative CWD — now resolved via plugin data folder parent with CWD fallback.",
+        "Fixed deprecated Inventory.getTitle() in legacy PrefixGuiListener — replaced with event.getView().getTitle().",
+        "Fixed duplicate world format schema silently overwriting each other — legacy 'world-formats' keys now log a warning when both schemas define the same world.",
+        "Fixed null value stored for missing YAML position format keys — null values are now skipped.",
+        "Removed unused 'current' variable in handlePrefixListClick().",
+        "Optimized getTemplates() — templates list is now a static final constant instead of being allocated on every call.",
+        "Updated TAB plugin tutorial URL to https://leifiyo.dev/docs/placeholders."
       ]
     },
     {

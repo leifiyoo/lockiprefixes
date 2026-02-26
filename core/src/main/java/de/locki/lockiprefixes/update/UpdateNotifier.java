@@ -23,6 +23,13 @@ import java.util.regex.Pattern;
 public class UpdateNotifier implements Listener {
 
     private static final long DAILY_INTERVAL_TICKS = 20L * 60L * 60L * 24L;
+    private static final String DOWNLOAD_URL = "https://modrinth.com/plugin/lockiprefixes";
+
+    /** Pre-compiled patterns — never changes at runtime. */
+    private static final Pattern LATEST_VERSION_PATTERN =
+        Pattern.compile("\"latestVersion\"\\s*:\\s*\"(\\d+\\.\\d+\\.\\d+(?:[-+][\\w.-]+)?)\"");
+    private static final Pattern ENTRIES_VERSION_PATTERN =
+        Pattern.compile("\"version\"\\s*:\\s*\"(\\d+\\.\\d+\\.\\d+(?:[-+][\\w.-]+)?)\"");
 
     private final JavaPlugin plugin;
     private final String remoteChangelogRawUrl;
@@ -98,18 +105,16 @@ public class UpdateNotifier implements Listener {
         String currentVersion = plugin.getDescription().getVersion();
         boolean isNewer = compareVersions(remoteVersion, currentVersion) > 0;
 
-        updateAvailable = isNewer;
+        // Write latestVersion BEFORE updateAvailable so join handlers never see
+        // updateAvailable=true with a stale version string (TOCTOU fix).
         latestVersion = remoteVersion;
+        updateAvailable = isNewer;
 
         if (!isNewer) {
             return;
         }
 
         plugin.getLogger().warning("Update available: " + currentVersion + " -> " + remoteVersion);
-
-        if (startup) {
-            plugin.getLogger().warning("Changelog: " + changelogPageUrl);
-        }
 
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
@@ -129,10 +134,12 @@ public class UpdateNotifier implements Listener {
 
     private void sendUpdateMessage(Player player) {
         String currentVersion = plugin.getDescription().getVersion();
-        player.sendMessage(ChatColor.GOLD + "[LockiPrefixes] " + ChatColor.YELLOW + "Update available: "
-            + ChatColor.AQUA + latestVersion + ChatColor.GRAY + " (current: " + currentVersion + ")");
-        player.sendMessage(ChatColor.GOLD + "[LockiPrefixes] " + ChatColor.GRAY + "Changelog: "
-            + ChatColor.WHITE + changelogPageUrl);
+        player.sendMessage(ChatColor.DARK_GRAY + "----------------------------------------");
+        player.sendMessage(ChatColor.GOLD + "[LockiPrefixes] " + ChatColor.YELLOW + "A new update is available!");
+        player.sendMessage(ChatColor.GRAY + "Current: " + ChatColor.WHITE + currentVersion
+            + ChatColor.GRAY + "  Latest: " + ChatColor.AQUA + latestVersion);
+        player.sendMessage(ChatColor.GRAY + "Download: " + ChatColor.WHITE + DOWNLOAD_URL);
+        player.sendMessage(ChatColor.DARK_GRAY + "----------------------------------------");
     }
 
     private String fetchLatestVersion() {
@@ -151,15 +158,13 @@ public class UpdateNotifier implements Listener {
             }
 
             StringBuilder content = new StringBuilder();
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)
-            );
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append('\n');
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append('\n');
+                }
             }
-            reader.close();
 
             return extractVersion(content.toString());
         } catch (Exception ignored) {
@@ -172,14 +177,12 @@ public class UpdateNotifier implements Listener {
     }
 
     private String extractVersion(String changelogContent) {
-        Pattern latestPattern = Pattern.compile("\"latestVersion\"\\s*:\\s*\"(\\d+\\.\\d+\\.\\d+(?:[-+][\\w.-]+)?)\"");
-        Matcher latestMatcher = latestPattern.matcher(changelogContent);
+        Matcher latestMatcher = LATEST_VERSION_PATTERN.matcher(changelogContent);
         if (latestMatcher.find()) {
             return latestMatcher.group(1);
         }
 
-        Pattern entriesPattern = Pattern.compile("\"version\"\\s*:\\s*\"(\\d+\\.\\d+\\.\\d+(?:[-+][\\w.-]+)?)\"");
-        Matcher entriesMatcher = entriesPattern.matcher(changelogContent);
+        Matcher entriesMatcher = ENTRIES_VERSION_PATTERN.matcher(changelogContent);
         if (entriesMatcher.find()) {
             return entriesMatcher.group(1);
         }
@@ -207,7 +210,7 @@ public class UpdateNotifier implements Listener {
             normalized = normalized.substring(1);
         }
 
-        String[] dotParts = normalized.split("\\\\.");
+        String[] dotParts = normalized.split("\\.");
         int max = Math.min(dotParts.length, 4);
         int[] numbers = new int[max];
 

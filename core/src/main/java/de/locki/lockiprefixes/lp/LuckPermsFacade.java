@@ -15,7 +15,7 @@ import net.luckperms.api.query.QueryOptions;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Facade for LuckPerms API interactions.
@@ -23,8 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LuckPermsFacade {
 
+    private static final Logger LOG = Logger.getLogger("LockiPrefixes");
+
     private final LuckPerms luckPerms;
-    private final Map<UUID, CachedPlayerData> cache = new ConcurrentHashMap<>();
 
     public LuckPermsFacade(LuckPerms luckPerms) {
         this.luckPerms = luckPerms;
@@ -42,6 +43,8 @@ public class LuckPermsFacade {
 
         User user = luckPerms.getUserManager().getUser(playerData.getUuid());
         if (user == null) {
+            LOG.warning("[LockiPrefixes] LuckPerms user not loaded for " + playerData.getUuid()
+                + " (" + playerData.getName() + "). Chat will be sent without rank data.");
             return;
         }
 
@@ -105,12 +108,15 @@ public class LuckPermsFacade {
     }
 
     /**
-     * Invalidates the cache for a player.
+     * Invalidates any plugin-level cache for a player.
+     * LuckPerms manages its own internal cache; this method exists for
+     * API compatibility and may be extended in the future.
      *
      * @param uuid The player's UUID
      */
     public void invalidateCache(UUID uuid) {
-        cache.remove(uuid);
+        // LuckPerms maintains its own per-user data cache.
+        // No additional plugin-level cache is currently maintained.
     }
 
     /**
@@ -235,26 +241,14 @@ public class LuckPermsFacade {
     }
 
     /**
-     * Clears the entire cache.
+     * Clears the plugin-level cache.
+     * LuckPerms manages its own internal cache; this is a no-op but kept for API compatibility.
      */
     public void clearCache() {
-        cache.clear();
+        // No additional plugin-level cache is maintained.
     }
 
     public LuckPerms getLuckPerms() {
         return luckPerms;
-    }
-
-    /**
-     * Internal cached data holder.
-     */
-    private static class CachedPlayerData {
-        String primaryGroup;
-        String prefix;
-        String suffix;
-        List<String> prefixes;
-        List<String> suffixes;
-        Map<String, String> meta;
-        long timestamp;
     }
 }

@@ -4,6 +4,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Configuration holder for LockiPrefixes.
@@ -16,18 +18,21 @@ public class LockiConfig {
     private String defaultLeaderboardFormat;
 
     // Group-specific formats (group name -> format)
-    private final Map<String, GroupFormat> groupFormats = new HashMap<>();
+    // ConcurrentHashMap — read by async chat threads while load() may be called on main thread
+    private final Map<String, GroupFormat> groupFormats = new ConcurrentHashMap<>();
 
     // World-specific formats (world name -> format)
-    private final Map<String, String> worldChatFormats = new HashMap<>();
-    private final Map<String, String> worldLeaderboardFormats = new HashMap<>();
+    private final Map<String, String> worldChatFormats = new ConcurrentHashMap<>();
+    private final Map<String, String> worldLeaderboardFormats = new ConcurrentHashMap<>();
 
     // Server-specific formats (server name -> format)
-    private final Map<String, String> serverChatFormats = new HashMap<>();
-    private final Map<String, String> serverLeaderboardFormats = new HashMap<>();
+    private final Map<String, String> serverChatFormats = new ConcurrentHashMap<>();
+    private final Map<String, String> serverLeaderboardFormats = new ConcurrentHashMap<>();
 
     // Leaderboard position-specific formats (position -> format)
-    private final Map<Integer, String> leaderboardPositionFormats = new HashMap<>();
+    private final Map<Integer, String> leaderboardPositionFormats = new ConcurrentHashMap<>();
+
+    private static final Logger LOG = Logger.getLogger("LockiPrefixes");
 
     // Placeholder separator for {prefixes} and {suffixes}
     private String prefixSeparator = "";
@@ -52,7 +57,10 @@ public class LockiConfig {
             for (String posKey : positionsSection.getKeys(false)) {
                 try {
                     int position = Integer.parseInt(posKey);
-                    leaderboardPositionFormats.put(position, positionsSection.getString(posKey));
+                    String posValue = positionsSection.getString(posKey);
+                    if (posValue != null) {
+                        leaderboardPositionFormats.put(position, posValue);
+                    }
                 } catch (NumberFormatException ignored) {
                 }
             }
@@ -108,17 +116,27 @@ public class LockiConfig {
             }
         }
         
-        // Also check old format
+        // Also check old format (legacy schema — logs a warning if it overlaps with new schema)
         ConfigurationSection worldChatSection = config.getConfigurationSection("world-formats.chat");
         if (worldChatSection != null) {
             for (String world : worldChatSection.getKeys(false)) {
-                worldChatFormats.put(world.toLowerCase(), worldChatSection.getString(world));
+                String key = world.toLowerCase();
+                if (worldChatFormats.containsKey(key)) {
+                    LOG.warning("[LockiPrefixes] World '" + world + "' is defined in both 'worlds' and 'world-formats.chat'. The legacy 'world-formats' entry takes precedence.");
+                }
+                String val = worldChatSection.getString(world);
+                if (val != null) worldChatFormats.put(key, val);
             }
         }
         ConfigurationSection worldLbSection = config.getConfigurationSection("world-formats.leaderboard");
         if (worldLbSection != null) {
             for (String world : worldLbSection.getKeys(false)) {
-                worldLeaderboardFormats.put(world.toLowerCase(), worldLbSection.getString(world));
+                String key = world.toLowerCase();
+                if (worldLeaderboardFormats.containsKey(key)) {
+                    LOG.warning("[LockiPrefixes] World '" + world + "' is defined in both 'worlds' and 'world-formats.leaderboard'. The legacy 'world-formats' entry takes precedence.");
+                }
+                String val = worldLbSection.getString(world);
+                if (val != null) worldLeaderboardFormats.put(key, val);
             }
         }
 

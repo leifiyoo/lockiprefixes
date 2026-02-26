@@ -17,12 +17,11 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 public class MidChatListener implements Listener {
 
     private final LockiPrefixesPlugin plugin;
-    private final ChatFormatter chatFormatter;
     private final LuckPermsFacade luckPermsFacade;
 
     public MidChatListener(LockiPrefixesPlugin plugin, ChatFormatter chatFormatter, LuckPermsFacade luckPermsFacade) {
         this.plugin = plugin;
-        this.chatFormatter = chatFormatter;
+        // chatFormatter parameter kept for API compatibility — we resolve it via plugin.getChatFormatter() per event.
         this.luckPermsFacade = luckPermsFacade;
     }
 
@@ -40,8 +39,12 @@ public class MidChatListener implements Listener {
         // Populate LuckPerms data
         luckPermsFacade.populatePlayerData(playerData);
 
+        // Always resolve the formatter via the plugin so post-reload config is applied.
+        ChatFormatter formatter = plugin.getChatFormatter();
+        if (formatter == null) return;
+
         // Format the message
-        String formatted = chatFormatter.formatChat(playerData, event.getMessage());
+        String formatted = formatter.formatChat(playerData, event.getMessage());
 
         // Set the format - escape % characters
         event.setFormat(formatted.replace("%", "%%"));

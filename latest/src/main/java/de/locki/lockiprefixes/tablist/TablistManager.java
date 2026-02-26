@@ -134,7 +134,17 @@ public class TablistManager implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        playerTeams.remove(event.getPlayer().getUniqueId());
+        String teamName = playerTeams.remove(event.getPlayer().getUniqueId());
+        if (teamName != null) {
+            Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+            Team team = scoreboard.getTeam(teamName);
+            if (team != null) {
+                team.removeEntry(event.getPlayer().getName());
+                if (team.getEntries().isEmpty()) {
+                    team.unregister();
+                }
+            }
+        }
     }
 
     /**
@@ -145,25 +155,29 @@ public class TablistManager implements Listener {
         if (chatFormatter == null || luckPermsFacade == null) return;
 
         PlayerData playerData = createPlayerData(player);
-        
-        String formatted;
-        
-        // Apply gradient animation if enabled for this group
+
+        // Compute the normal (non-animated) format first — used as a safe fallback.
+        String normalFormatted = chatFormatter.formatLeaderboard(playerData);
+
+        String formatted = normalFormatted;
+
+        // Apply gradient animation only when enabled and the group has animation config.
         String group = playerData.getPrimaryGroup();
-        String gradientConfig = group != null ? 
-            plugin.getConfig().getString("tablist.animation.groups." + group.toLowerCase()) : null;
-        
-        if (animationEnabled && gradientConfig != null) {
-            // Use animated gradient
-            formatted = applyAnimatedGradient(null, playerData);
-        } else {
-            // Use normal format
-            formatted = chatFormatter.formatLeaderboard(playerData);
+        String gradientCfg = group != null
+            ? plugin.getConfig().getString("tablist.animation.groups." + group.toLowerCase())
+            : null;
+
+        if (animationEnabled && gradientCfg != null) {
+            String animated = applyAnimatedGradient(normalFormatted, playerData);
+            if (animated != null) {
+                formatted = animated;
+            }
+            // If animated is null for some reason, fall back to normalFormatted (already set).
         }
-        
+
         Component component = LEGACY_SERIALIZER.deserialize(formatted);
         player.playerListName(component);
-        
+
         // Update sorting
         updatePlayerSorting(player, playerData);
     }
@@ -189,11 +203,10 @@ public class TablistManager implements Listener {
             }
         }
         
-        // Create team name that sorts correctly (lower = higher in list)
-        String teamName = String.format("%03d_%s", priority, player.getName());
-        if (teamName.length() > 16) {
-            teamName = teamName.substring(0, 16);
-        }
+        // Build team name: 3-digit priority prefix + 12-char UUID fragment = 16 chars max.
+        // Using UUID ensures uniqueness regardless of player name similarity.
+        String uuidFrag = player.getUniqueId().toString().replace("-", "").substring(0, 12);
+        String teamName = String.format("%03d_%s", priority, uuidFrag); // always exactly 16 chars
         
         // Remove from old team
         String oldTeam = playerTeams.get(player.getUniqueId());

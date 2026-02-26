@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * PlaceholderAPI expansion for LockiPrefixes.
@@ -16,12 +17,13 @@ import java.util.function.Function;
 public class LockiPrefixesExpansion extends PlaceholderExpansion {
 
     private final Plugin plugin;
-    private final ChatFormatter chatFormatter;
+    /** Supplier so we always use the most-current formatter, even after /lockiprefixes reload. */
+    private final Supplier<ChatFormatter> chatFormatterSupplier;
     private final Function<Player, PlayerData> playerDataProvider;
 
-    public LockiPrefixesExpansion(Plugin plugin, ChatFormatter chatFormatter, Function<Player, PlayerData> playerDataProvider) {
+    public LockiPrefixesExpansion(Plugin plugin, Supplier<ChatFormatter> chatFormatterSupplier, Function<Player, PlayerData> playerDataProvider) {
         this.plugin = plugin;
-        this.chatFormatter = chatFormatter;
+        this.chatFormatterSupplier = chatFormatterSupplier;
         this.playerDataProvider = playerDataProvider;
     }
 
@@ -65,6 +67,11 @@ public class LockiPrefixesExpansion extends PlaceholderExpansion {
 
         PlayerData playerData = playerDataProvider.apply(player);
         if (playerData == null) {
+            return "";
+        }
+
+        ChatFormatter chatFormatter = chatFormatterSupplier.get();
+        if (chatFormatter == null) {
             return "";
         }
 

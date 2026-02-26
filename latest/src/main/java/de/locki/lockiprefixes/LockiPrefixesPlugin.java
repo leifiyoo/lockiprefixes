@@ -35,8 +35,8 @@ import java.util.List;
  */
 public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
 
-    private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/locki/lockiprefixes/main/CHANGELOG.json";
-    private static final String CHANGELOG_PAGE_URL = "https://github.com/locki/lockiprefixes/blob/main/CHANGELOG.json";
+    private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/leifiyoo/lockiprefixes/main/CHANGELOG.json";
+    private static final String CHANGELOG_PAGE_URL = "https://github.com/leifiyoo/lockiprefixes/blob/main/CHANGELOG.json";
 
     private static LockiPrefixesPlugin instance;
 
@@ -93,7 +93,7 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
                     tablistManager = new TablistManager(this, chatFormatter, luckPermsFacade);
                     getServer().getPluginManager().registerEvents(tablistManager, this);
                 } else {
-                    getLogger().info("TAB plugin detected - internal tablist disabled. Use placeholder %lockiprefixes_formatted% in TAB.");
+                    getLogger().info("TAB plugin detected - internal tablist disabled. Use placeholder %lockiprefixes_formatted% in TAB. (Guide: https://leifiyo.dev/docs/placeholders)");
                 }
 
                 // Initialize Prefix Manager GUI
@@ -115,12 +115,17 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         // Register commands
         ReloadCommand reloadCommand = new ReloadCommand(this);
         reloadCommand.setMenuManager(prefixMenuManager);
-        getCommand("lockiprefixes").setExecutor(reloadCommand);
-        getCommand("lockiprefixes").setTabCompleter(reloadCommand);
+        org.bukkit.command.PluginCommand cmd = getCommand("lockiprefixes");
+        if (cmd != null) {
+            cmd.setExecutor(reloadCommand);
+            cmd.setTabCompleter(reloadCommand);
+        } else {
+            getLogger().severe("Command 'lockiprefixes' not found in plugin.yml — command registration skipped.");
+        }
 
         // Register PlaceholderAPI expansion if available
         if (placeholderApiAvailable && chatFormatter != null) {
-            new LockiPrefixesExpansion(this, chatFormatter, this::createPlayerData).register();
+            new LockiPrefixesExpansion(this, this::getChatFormatter, this::createPlayerData).register();
             getLogger().info("PlaceholderAPI expansion registered.");
         }
 
@@ -167,6 +172,7 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         if (luckPermsFacade != null) {
             luckPermsFacade.clearCache();
         }
+        instance = null;
         getLogger().info("LockiPrefixes disabled.");
     }
 
@@ -197,8 +203,16 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         secureProfileEnforced = false; // Default to false, only warn if we confirm it's enabled
         
         try {
-            // Try to read server.properties directly
-            java.io.File serverProps = new java.io.File("server.properties");
+            // Resolve server.properties relative to the plugin's data folder parent
+            // (i.e., the plugins/ folder -> server root), not the JVM working directory.
+            java.io.File serverRoot = getDataFolder().getParentFile() != null
+                ? getDataFolder().getParentFile().getParentFile()
+                : new java.io.File(".");
+            java.io.File serverProps = new java.io.File(serverRoot, "server.properties");
+            if (!serverProps.exists()) {
+                // Fallback: try CWD (standard MC server launch from server root)
+                serverProps = new java.io.File("server.properties");
+            }
             if (serverProps.exists()) {
                 java.util.Properties props = new java.util.Properties();
                 try (java.io.FileInputStream fis = new java.io.FileInputStream(serverProps)) {
@@ -332,8 +346,12 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         String tabFormat = PrefixMenuManager.deriveTablistFormat(chatFormat);
         getConfig().set(tabKey, tabFormat);
 
-        saveConfig();
-        reload();
+        // Save config asynchronously to avoid blocking the server tick with disk I/O,
+        // then reload the in-memory runtime state on the main thread.
+        getServer().getScheduler().runTaskAsynchronously(this, () -> {
+            saveConfig();
+            getServer().getScheduler().runTask(this, this::reload);
+        });
     }
 
     /**
@@ -360,8 +378,11 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
             getConfig().set(base + "priority", priority);
         }
 
-        saveConfig();
-        reload();
+        // Save config asynchronously to avoid blocking the server tick with disk I/O.
+        getServer().getScheduler().runTaskAsynchronously(this, () -> {
+            saveConfig();
+            getServer().getScheduler().runTask(this, this::reload);
+        });
     }
 
     private String capitalize(String value) {

@@ -4,7 +4,7 @@ main: de.locki.lockiprefixes.LockiPrefixesPlugin
 api-version: 1.13
 description: LuckPerms prefix/suffix formatter for chat and leaderboards
 authors: [Locki]
-website: https://github.com/locki/lockiprefixes
+website: https://github.com/leifiyoo/lockiprefixes
 depend: [LuckPerms]
 softdepend: [PlaceholderAPI]
 

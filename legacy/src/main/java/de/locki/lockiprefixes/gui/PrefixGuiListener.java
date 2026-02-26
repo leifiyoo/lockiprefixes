@@ -26,7 +26,8 @@ public class PrefixGuiListener implements Listener {
         Player player = (Player) event.getWhoClicked();
 
         Inventory inv = event.getInventory();
-        String title = inv.getTitle();
+        // Use getView().getTitle() — Inventory.getTitle() is deprecated since 1.13.
+        String title = event.getView().getTitle();
 
         boolean isOurMenu = title.equals(PrefixMenuManager.MAIN_TITLE)
             || title.equals(PrefixMenuManager.LIST_TITLE);

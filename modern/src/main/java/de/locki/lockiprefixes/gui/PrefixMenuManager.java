@@ -151,7 +151,7 @@ public class PrefixMenuManager {
                     luckPermsFacade.invalidateCache(player.getUniqueId());
                     player.sendMessage(ChatColor.GREEN + "✔ Prefix updated: " + ChatColor.translateAlternateColorCodes('&', value));
                     Bukkit.getScheduler().runTaskLater(plugin, () -> openMainMenu(player), 20L);
-                });
+                }, r -> Bukkit.getScheduler().runTask(plugin, r));
         }
     }
 
@@ -335,7 +335,7 @@ public class PrefixMenuManager {
                         luckPermsFacade.invalidateCache(player.getUniqueId());
                         player.sendMessage(ChatColor.GREEN + "✔ Prefix applied: " + colorize(selected));
                         Bukkit.getScheduler().runTask(plugin, () -> openMainMenu(player));
-                    });
+                    }, r -> Bukkit.getScheduler().runTask(plugin, r));
             }
         }
     }

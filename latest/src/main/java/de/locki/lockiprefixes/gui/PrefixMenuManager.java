@@ -833,8 +833,8 @@ public class PrefixMenuManager {
                     .append(Component.text("  ✦ Tablist Setup Guide", NamedTextColor.GOLD).decorate(TextDecoration.BOLD))
                     .append(Component.text("\n  Click the link below to open the setup guide in your browser:\n  ", NamedTextColor.GRAY))
                     .append(Component.text("▶ Open guide", NamedTextColor.AQUA).decorate(TextDecoration.UNDERLINED)
-                        .clickEvent(ClickEvent.openUrl("https://github.com/locki/lockiprefixes#tab-plugin"))
-                        .hoverEvent(HoverEvent.showText(Component.text("https://github.com/locki/lockiprefixes#tab-plugin", NamedTextColor.GRAY))))
+                        .clickEvent(ClickEvent.openUrl("https://leifiyo.dev/docs/placeholders"))
+                        .hoverEvent(HoverEvent.showText(Component.text("https://leifiyo.dev/docs/placeholders", NamedTextColor.GRAY))))
                     .append(Component.text("\n", NamedTextColor.GRAY));
                 player.sendMessage(guide);
                 break;
@@ -887,7 +887,6 @@ public class PrefixMenuManager {
                 groupName = groupName.toLowerCase(Locale.ROOT);
                 LockiConfig.GroupFormat gf = plugin.getLockiConfig().getGroupFormat(groupName);
                 if (gf != null) {
-                    String current = gf.getChatFormat() != null ? gf.getChatFormat() : plugin.getLockiConfig().getDefaultChatFormat();
                     startEditSessionForGroup(player, EditType.PREFIX, groupName);
                 }
             }
@@ -989,16 +988,36 @@ public class PrefixMenuManager {
                 });
             } else {
                 // Auto-create LP group, then save config
-                luckPermsFacade.createGroup(finalName).thenAccept(group ->
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        if (!player.isOnline()) return;
-                        plugin.ensureGroupExists(finalName, finalChat, finalTab, 10);
-                        editingGroup.put(player.getUniqueId(), finalName);
-                        player.sendMessage(Component.text("✔ Rank §a" + toTitle(finalName) + "§r created (LuckPerms group added)!", NamedTextColor.GREEN));
-                        Bukkit.getScheduler().runTaskLater(plugin, () -> openMainMenu(player), 5L);
-                    })
-                );
+                luckPermsFacade.createGroup(finalName)
+                    .thenAccept(group ->
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            if (!player.isOnline()) return;
+                            plugin.ensureGroupExists(finalName, finalChat, finalTab, 10);
+                            editingGroup.put(player.getUniqueId(), finalName);
+                            player.sendMessage(Component.text("\u2714 Rank \u00a7a" + toTitle(finalName) + "\u00a7r created (LuckPerms group added)!", NamedTextColor.GREEN));
+                            Bukkit.getScheduler().runTaskLater(plugin, () -> openMainMenu(player), 5L);
+                        })
+                    )
+                    .exceptionally(ex -> {
+                        plugin.getLogger().severe("[LockiPrefixes] Failed to create LuckPerms group '" + finalName + "': " + ex.getMessage());
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            if (player.isOnline()) {
+                                player.sendMessage(Component.text("\u2718 Failed to create rank. Check console for details.", NamedTextColor.RED));
+                                openMainMenu(player);
+                            }
+                        });
+                        return null;
+                    });
             }
+        }).exceptionally(ex -> {
+            plugin.getLogger().severe("[LockiPrefixes] Failed to check group existence for '" + finalName + "': " + ex.getMessage());
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (player.isOnline()) {
+                    player.sendMessage(Component.text("\u2718 Failed to check rank status. Check console for details.", NamedTextColor.RED));
+                    openMainMenu(player);
+                }
+            });
+            return null;
         });
     }
 
@@ -1016,15 +1035,20 @@ public class PrefixMenuManager {
         }
     }
 
+    private static final List<TemplateDef> TEMPLATES;
+    static {
+        List<TemplateDef> list = new ArrayList<>();
+        list.add(new TemplateDef("classic",  "Classic",    Material.BOOK,           "&b&l{RANK} &7| &f{name} &7\u00bb &f{message}"));
+        list.add(new TemplateDef("arrow",    "Arrow",      Material.SPECTRAL_ARROW, "&b{RANK} &8\u279c &f{name} &8: &7{message}"));
+        list.add(new TemplateDef("brackets", "Brackets",   Material.NAME_TAG,       "&8[&b{RANK}&8] &f{name} &8\u00bb &7{message}"));
+        list.add(new TemplateDef("minimal",  "Minimal",    Material.FEATHER,        "&f{name} &8\u00bb &7{message}"));
+        list.add(new TemplateDef("bold",     "Bold Rank",  Material.NETHER_STAR,    "&b&l{RANK} &8- &f{name} &8: &7{message}"));
+        list.add(new TemplateDef("pipe",     "Clean Pipe", Material.PAPER,          "&b{RANK} &7| &f{name} &7| &f{message}"));
+        TEMPLATES = java.util.Collections.unmodifiableList(list);
+    }
+
     private List<TemplateDef> getTemplates() {
-        List<TemplateDef> templates = new ArrayList<>();
-        templates.add(new TemplateDef("classic", "Classic", Material.BOOK, "&b&l{RANK} &7| &f{name} &7» &f{message}"));
-        templates.add(new TemplateDef("arrow", "Arrow", Material.SPECTRAL_ARROW, "&b{RANK} &8➜ &f{name} &8: &7{message}"));
-        templates.add(new TemplateDef("brackets", "Brackets", Material.NAME_TAG, "&8[&b{RANK}&8] &f{name} &8» &7{message}"));
-        templates.add(new TemplateDef("minimal", "Minimal", Material.FEATHER, "&f{name} &8» &7{message}"));
-        templates.add(new TemplateDef("bold", "Bold Rank", Material.NETHER_STAR, "&b&l{RANK} &8- &f{name} &8: &7{message}"));
-        templates.add(new TemplateDef("pipe", "Clean Pipe", Material.PAPER, "&b{RANK} &7| &f{name} &7| &f{message}"));
-        return templates;
+        return TEMPLATES;
     }
 
     private TemplateDef getTemplateById(String id) {
