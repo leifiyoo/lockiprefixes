@@ -49,10 +49,10 @@ public class UpdateNotifierTest {
             ChatColor.GOLD.toString() + ChatColor.BOLD + "LockiPrefixes "
                 + ChatColor.DARK_GRAY + "\u00BB "
                 + ChatColor.YELLOW + "Update " + ChatColor.WHITE + "3.0.2 "
-                + ChatColor.GRAY + "ist verfuegbar",
-            ChatColor.GRAY + "Installiert: " + ChatColor.WHITE + "3.0.1"
-                + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + "Neu: " + ChatColor.GREEN + "3.0.2",
-            ChatColor.GRAY + "Neu:",
+                + ChatColor.GRAY + "is available",
+            ChatColor.GRAY + "Installed: " + ChatColor.WHITE + "3.0.1"
+                + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + "Latest: " + ChatColor.GREEN + "3.0.2",
+            ChatColor.GRAY + "What's new:",
             ChatColor.DARK_GRAY + "- " + ChatColor.WHITE + "Cleaner update notice.",
             ChatColor.DARK_GRAY + "- " + ChatColor.WHITE + "Startup-only update checks.",
             ChatColor.GRAY + "Download: " + ChatColor.AQUA + "https://modrinth.com/plugin/lockiprefixes",

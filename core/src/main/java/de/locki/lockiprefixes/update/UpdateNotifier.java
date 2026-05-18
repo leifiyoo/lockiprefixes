@@ -104,8 +104,6 @@ public class UpdateNotifier implements Listener {
             return;
         }
 
-        plugin.getLogger().warning("Update available: " + currentVersion + " -> " + remoteVersion);
-
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
             public void run() {
@@ -182,17 +180,17 @@ public class UpdateNotifier implements Listener {
         lines.add(ChatColor.GOLD.toString() + ChatColor.BOLD + "LockiPrefixes "
             + ChatColor.DARK_GRAY + "\u00BB "
             + ChatColor.YELLOW + "Update " + ChatColor.WHITE + info.getVersion()
-            + " " + ChatColor.GRAY + "ist verfuegbar");
-        lines.add(ChatColor.GRAY + "Installiert: " + ChatColor.WHITE + currentVersion
-            + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + "Neu: " + ChatColor.GREEN + info.getVersion());
+            + " " + ChatColor.GRAY + "is available");
+        lines.add(ChatColor.GRAY + "Installed: " + ChatColor.WHITE + currentVersion
+            + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + "Latest: " + ChatColor.GREEN + info.getVersion());
 
         if (!info.getHighlights().isEmpty()) {
-            lines.add(ChatColor.GRAY + "Neu:");
+            lines.add(ChatColor.GRAY + "What's new:");
             for (String highlight : info.getHighlights()) {
                 lines.add(ChatColor.DARK_GRAY + "- " + ChatColor.WHITE + highlight);
             }
         } else {
-            lines.add(ChatColor.GRAY + "Neu: " + ChatColor.WHITE + "Details stehen im Changelog.");
+            lines.add(ChatColor.GRAY + "What's new: " + ChatColor.WHITE + "See the changelog for details.");
         }
 
         lines.add(ChatColor.GRAY + "Download: " + ChatColor.AQUA + DOWNLOAD_URL);
