@@ -6,38 +6,43 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Checks remote changelog metadata for newer releases and notifies OPs.
- * Runs once on startup and then once every 24 hours.
+ * Runs once on startup and reuses the cached result for join notifications.
  */
 public class UpdateNotifier implements Listener {
 
-    private static final long DAILY_INTERVAL_TICKS = 20L * 60L * 60L * 24L;
     private static final String DOWNLOAD_URL = "https://modrinth.com/plugin/lockiprefixes";
+    private static final int MAX_HIGHLIGHTS = 3;
 
     /** Pre-compiled patterns — never changes at runtime. */
     private static final Pattern LATEST_VERSION_PATTERN =
         Pattern.compile("\"latestVersion\"\\s*:\\s*\"(\\d+\\.\\d+\\.\\d+(?:[-+][\\w.-]+)?)\"");
     private static final Pattern ENTRIES_VERSION_PATTERN =
         Pattern.compile("\"version\"\\s*:\\s*\"(\\d+\\.\\d+\\.\\d+(?:[-+][\\w.-]+)?)\"");
+    private static final Pattern CHANGES_BLOCK_PATTERN =
+        Pattern.compile("\"changes\"\\s*:\\s*\\[(.*?)\\]", Pattern.DOTALL);
+    private static final Pattern JSON_STRING_PATTERN =
+        Pattern.compile("\"((?:\\\\.|[^\"\\\\])*)\"");
 
     private final JavaPlugin plugin;
     private final String remoteChangelogRawUrl;
     private final String changelogPageUrl;
 
     private volatile boolean updateAvailable;
-    private volatile String latestVersion;
-    private BukkitTask dailyTask;
+    private volatile UpdateInfo latestUpdateInfo;
 
     public UpdateNotifier(JavaPlugin plugin, String remoteChangelogRawUrl, String changelogPageUrl) {
         this.plugin = plugin;
@@ -47,27 +52,11 @@ public class UpdateNotifier implements Listener {
 
     public void start() {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-
         runAsyncCheck(true);
-
-        dailyTask = plugin.getServer().getScheduler().runTaskTimerAsynchronously(
-            plugin,
-            new Runnable() {
-                @Override
-                public void run() {
-                    checkAndNotify(false);
-                }
-            },
-            DAILY_INTERVAL_TICKS,
-            DAILY_INTERVAL_TICKS
-        );
     }
 
     public void stop() {
-        if (dailyTask != null) {
-            dailyTask.cancel();
-            dailyTask = null;
-        }
+        // No repeating update task is scheduled. The method is kept for plugin shutdown.
     }
 
     @EventHandler
@@ -97,24 +86,23 @@ public class UpdateNotifier implements Listener {
     }
 
     private void checkAndNotify(boolean startup) {
-        String remoteVersion = fetchLatestVersion();
-        if (remoteVersion == null || remoteVersion.isEmpty()) {
+        UpdateInfo remoteInfo = fetchUpdateInfo();
+        if (remoteInfo == null || remoteInfo.getVersion().isEmpty()) {
             return;
         }
 
         String currentVersion = plugin.getDescription().getVersion();
+        String remoteVersion = remoteInfo.getVersion();
         boolean isNewer = compareVersions(remoteVersion, currentVersion) > 0;
 
-        // Write latestVersion BEFORE updateAvailable so join handlers never see
-        // updateAvailable=true with a stale version string (TOCTOU fix).
-        latestVersion = remoteVersion;
+        // Write details BEFORE updateAvailable so join handlers never see
+        // updateAvailable=true with stale update text.
+        latestUpdateInfo = remoteInfo;
         updateAvailable = isNewer;
 
         if (!isNewer) {
             return;
         }
-
-        plugin.getLogger().warning("Update available: " + currentVersion + " -> " + remoteVersion);
 
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
@@ -133,16 +121,17 @@ public class UpdateNotifier implements Listener {
     }
 
     private void sendUpdateMessage(Player player) {
-        String currentVersion = plugin.getDescription().getVersion();
-        player.sendMessage(ChatColor.DARK_GRAY + "----------------------------------------");
-        player.sendMessage(ChatColor.GOLD + "[LockiPrefixes] " + ChatColor.YELLOW + "A new update is available!");
-        player.sendMessage(ChatColor.GRAY + "Current: " + ChatColor.WHITE + currentVersion
-            + ChatColor.GRAY + "  Latest: " + ChatColor.AQUA + latestVersion);
-        player.sendMessage(ChatColor.GRAY + "Download: " + ChatColor.WHITE + DOWNLOAD_URL);
-        player.sendMessage(ChatColor.DARK_GRAY + "----------------------------------------");
+        UpdateInfo info = latestUpdateInfo;
+        if (info == null) {
+            return;
+        }
+
+        for (String line : buildUpdateMessage(plugin.getDescription().getVersion(), info)) {
+            player.sendMessage(line);
+        }
     }
 
-    private String fetchLatestVersion() {
+    private UpdateInfo fetchUpdateInfo() {
         HttpURLConnection connection = null;
         try {
             URL url = new URL(remoteChangelogRawUrl);
@@ -166,7 +155,7 @@ public class UpdateNotifier implements Listener {
                 }
             }
 
-            return extractVersion(content.toString());
+            return parseUpdateInfo(content.toString());
         } catch (Exception ignored) {
             return null;
         } finally {
@@ -176,7 +165,40 @@ public class UpdateNotifier implements Listener {
         }
     }
 
-    private String extractVersion(String changelogContent) {
+    static UpdateInfo parseUpdateInfo(String changelogContent) {
+        String version = extractVersion(changelogContent);
+        if (version == null || version.isEmpty()) {
+            return null;
+        }
+
+        return new UpdateInfo(version, extractHighlights(changelogContent));
+    }
+
+    static List<String> buildUpdateMessage(String currentVersion, UpdateInfo info) {
+        List<String> lines = new ArrayList<>();
+        lines.add(ChatColor.DARK_GRAY.toString() + ChatColor.STRIKETHROUGH + "--------------------------------------------------");
+        lines.add(ChatColor.GOLD.toString() + ChatColor.BOLD + "LockiPrefixes "
+            + ChatColor.DARK_GRAY + "\u00BB "
+            + ChatColor.YELLOW + "Update " + ChatColor.WHITE + info.getVersion()
+            + " " + ChatColor.GRAY + "is available");
+        lines.add(ChatColor.GRAY + "Installed: " + ChatColor.WHITE + currentVersion
+            + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + "Latest: " + ChatColor.GREEN + info.getVersion());
+
+        if (!info.getHighlights().isEmpty()) {
+            lines.add(ChatColor.GRAY + "What's new:");
+            for (String highlight : info.getHighlights()) {
+                lines.add(ChatColor.DARK_GRAY + "- " + ChatColor.WHITE + highlight);
+            }
+        } else {
+            lines.add(ChatColor.GRAY + "What's new: " + ChatColor.WHITE + "See the changelog for details.");
+        }
+
+        lines.add(ChatColor.GRAY + "Download: " + ChatColor.AQUA + DOWNLOAD_URL);
+        lines.add(ChatColor.DARK_GRAY.toString() + ChatColor.STRIKETHROUGH + "--------------------------------------------------");
+        return lines;
+    }
+
+    private static String extractVersion(String changelogContent) {
         Matcher latestMatcher = LATEST_VERSION_PATTERN.matcher(changelogContent);
         if (latestMatcher.find()) {
             return latestMatcher.group(1);
@@ -188,6 +210,65 @@ public class UpdateNotifier implements Listener {
         }
 
         return null;
+    }
+
+    private static List<String> extractHighlights(String changelogContent) {
+        Matcher blockMatcher = CHANGES_BLOCK_PATTERN.matcher(changelogContent);
+        if (!blockMatcher.find()) {
+            return Collections.emptyList();
+        }
+
+        List<String> highlights = new ArrayList<>();
+        Matcher itemMatcher = JSON_STRING_PATTERN.matcher(blockMatcher.group(1));
+        while (itemMatcher.find() && highlights.size() < MAX_HIGHLIGHTS) {
+            String value = unescapeJsonString(itemMatcher.group(1)).trim();
+            if (!value.isEmpty()) {
+                highlights.add(value);
+            }
+        }
+
+        return highlights;
+    }
+
+    private static String unescapeJsonString(String value) {
+        StringBuilder result = new StringBuilder();
+        boolean escaping = false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (escaping) {
+                switch (c) {
+                    case '"':
+                    case '\\':
+                    case '/':
+                        result.append(c);
+                        break;
+                    case 'b':
+                        result.append('\b');
+                        break;
+                    case 'f':
+                        result.append('\f');
+                        break;
+                    case 'n':
+                        result.append('\n');
+                        break;
+                    case 'r':
+                        result.append('\r');
+                        break;
+                    case 't':
+                        result.append('\t');
+                        break;
+                    default:
+                        result.append(c);
+                        break;
+                }
+                escaping = false;
+            } else if (c == '\\') {
+                escaping = true;
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 
     private int compareVersions(String left, String right) {
@@ -244,6 +325,26 @@ public class UpdateNotifier implements Listener {
             return Integer.parseInt(digits.toString());
         } catch (NumberFormatException ignored) {
             return 0;
+        }
+    }
+
+    static final class UpdateInfo {
+        private final String version;
+        private final List<String> highlights;
+
+        UpdateInfo(String version, List<String> highlights) {
+            this.version = version == null ? "" : version;
+            this.highlights = highlights == null
+                ? Collections.<String>emptyList()
+                : Collections.unmodifiableList(new ArrayList<>(highlights));
+        }
+
+        String getVersion() {
+            return version;
+        }
+
+        List<String> getHighlights() {
+            return highlights;
         }
     }
 }
