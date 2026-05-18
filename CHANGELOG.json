@@ -1,8 +1,15 @@
 {
   "project": "LockiPrefixes",
-  "latestVersion": "3.0.3",
+  "latestVersion": "3.0.4",
   "updatedAt": "2026-05-18",
   "entries": [
+    {
+      "version": "3.0.4",
+      "date": "2026-05-18",
+      "changes": [
+        "Updated to 26.1.x."
+      ]
+    },
     {
       "version": "3.0.3",
       "date": "2026-05-18",
