@@ -7,9 +7,10 @@
       "version": "3.0.4",
       "date": "2026-05-18",
       "changes": [
-        "Changed update visibility to the explicit lockiprefixes.notify permission, which defaults to operators only.",
-        "Removed in-game missing dependency and secure profile join warnings; those setup notices now stay in the server console.",
-        "Removed the latest-module extra plugin chat logger so the console no longer shows duplicate [LockiPrefixes] chat lines."
+        "Cleaned up admin-facing notices: update messages are now only shown to players with the lockiprefixes.notify permission, which defaults to server operators.",
+        "Moved setup and dependency warnings out of Minecraft chat. Missing dependencies and secure-profile guidance are now console-only so players are not interrupted on join.",
+        "Removed the extra latest-module chat logger that printed formatted chat a second time with the [LockiPrefixes] prefix; the console now keeps the normal server chat line only.",
+        "Built and published all four 3.0.4 variants: legacy, mid, modern, and latest."
       ]
     },
     {
