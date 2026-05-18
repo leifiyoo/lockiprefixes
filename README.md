@@ -13,10 +13,10 @@
 **Rank-based chat & tablist formatting for Paper servers.**  
 Set up everything in-game  no YAML editing required.
 
-[![MC](https://img.shields.io/badge/Minecraft-1.8--1.21-brightgreen?style=flat-square)](https://papermc.io)
-[![Paper](https://img.shields.io/badge/Paper-1.8%2B-5865F2?style=flat-square)](https://papermc.io)
-[![LuckPerms](https://img.shields.io/badge/Requires-LuckPerms-orange?style=flat-square)](https://luckperms.net)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)](LICENSE)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.8%20%E2%86%92%2026.1.x-35A854?style=for-the-badge&logo=minecraft&logoColor=white)](https://www.minecraft.net)
+[![Paper](https://img.shields.io/badge/Paper-26.1.2%20ready-5865F2?style=for-the-badge)](https://papermc.io)
+[![LuckPerms](https://img.shields.io/badge/LuckPerms-required-F59E0B?style=for-the-badge)](https://luckperms.net)
+[![MIT License](https://img.shields.io/badge/License-MIT-111827?style=for-the-badge)](LICENSE)
 
 </div>
 
@@ -28,7 +28,7 @@ Set up everything in-game  no YAML editing required.
 - Chat format and tablist name **auto-derived** from a single template
 - **LuckPerms group created automatically** when you create a rank
 - Works with the [TAB](https://github.com/NEZNAMY/TAB) plugin out of the box
-- Hot-reload  no server restart needed- Supports **Minecraft 1.8 through 1.21**
+- Hot-reload  no server restart needed- Supports **Minecraft 1.8 through 1.21.11 / 26.1.x**
 > **Required:** Set `enforce-secure-profile=false` in `server.properties` for chat formatting to work.
 
 ---
@@ -39,7 +39,7 @@ Set up everything in-game  no YAML editing required.
 
 | | Min. Version |
 |---|---|
-| Java | 8 (1.8–1.16) / 16 (1.17–1.19) / 21 (1.20+) |
+| Java | 8 (1.8–1.16) / 16 (1.17–1.19) / 21 (1.20–1.21.11) / 25 (26.1.x+) |
 | Paper / Spigot | 1.8 |
 | [LuckPerms](https://luckperms.net/) | latest |
 | [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) | latest *(only needed for TAB integration)* |
@@ -51,7 +51,7 @@ Set up everything in-game  no YAML editing required.
 | `lockiprefixes-legacy-x.x.x.jar` | 1.8 – 1.12 |
 | `lockiprefixes-mid-x.x.x.jar` | 1.13 – 1.18 |
 | `lockiprefixes-modern-x.x.x.jar` | 1.19 – 1.19.4 |
-| `lockiprefixes-latest-x.x.x.jar` | 1.20 – 1.21 |
+| `lockiprefixes-latest-x.x.x.jar` | 1.20 – 1.21.11 / 26.1.x |
 
 Drop the matching JAR into `plugins/` and restart.  
 A `config.yml` is generated automatically.
@@ -127,7 +127,7 @@ cd lockiprefixes
 ./gradlew :legacy:shadowJar -x test   # 1.8–1.12
 ./gradlew :mid:shadowJar -x test      # 1.13–1.18
 ./gradlew :modern:shadowJar -x test   # 1.19–1.19.4
-./gradlew :latest:shadowJar -x test   # 1.20–1.21
+./gradlew :latest:shadowJar -x test   # 1.20–1.21.11 / 26.1.x
 
 # Or build all at once
 ./gradlew shadowJar -x test
