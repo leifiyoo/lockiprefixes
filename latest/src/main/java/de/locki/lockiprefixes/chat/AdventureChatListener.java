@@ -21,7 +21,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 @SuppressWarnings("deprecation")
 public class AdventureChatListener implements Listener {
 
-    private final LockiPrefixesPlugin plugin;
     private final ChatFormatter chatFormatter;
     private final LuckPermsFacade luckPermsFacade;
     
@@ -34,7 +33,6 @@ public class AdventureChatListener implements Listener {
             .build();
 
     public AdventureChatListener(LockiPrefixesPlugin plugin, ChatFormatter chatFormatter, LuckPermsFacade luckPermsFacade) {
-        this.plugin = plugin;
         this.chatFormatter = chatFormatter;
         this.luckPermsFacade = luckPermsFacade;
     }
@@ -67,8 +65,5 @@ public class AdventureChatListener implements Listener {
         // Convert to Adventure Component and broadcast
         Component formattedComponent = LEGACY_SERIALIZER.deserialize(formatted);
         Bukkit.getServer().sendMessage(formattedComponent);
-        
-        // Log to console
-        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(formattedComponent));
     }
 }

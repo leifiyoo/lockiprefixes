@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  */
 public class UpdateNotifier implements Listener {
 
+    private static final String NOTIFY_PERMISSION = "lockiprefixes.notify";
     private static final String DOWNLOAD_URL = "https://modrinth.com/plugin/lockiprefixes";
     private static final int MAX_HIGHLIGHTS = 3;
 
@@ -61,7 +62,7 @@ public class UpdateNotifier implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (!updateAvailable || !event.getPlayer().isOp()) {
+        if (!updateAvailable || !canSeeUpdateNotifications(event.getPlayer())) {
             return;
         }
 
@@ -114,10 +115,14 @@ public class UpdateNotifier implements Listener {
 
     private void notifyOnlineOps() {
         for (Player online : plugin.getServer().getOnlinePlayers()) {
-            if (online.isOp()) {
+            if (canSeeUpdateNotifications(online)) {
                 sendUpdateMessage(online);
             }
         }
+    }
+
+    private boolean canSeeUpdateNotifications(Player player) {
+        return player.hasPermission(NOTIFY_PERMISSION);
     }
 
     private void sendUpdateMessage(Player player) {

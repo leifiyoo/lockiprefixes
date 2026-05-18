@@ -12,16 +12,10 @@ import de.locki.lockiprefixes.papi.LockiPrefixesExpansion;
 import de.locki.lockiprefixes.placeholder.PlayerData;
 import de.locki.lockiprefixes.tablist.TablistManager;
 import de.locki.lockiprefixes.update.UpdateNotifier;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,7 +27,7 @@ import java.util.List;
  * Uses Paper's Adventure API for optimal chat handling.
  * Supports Folia for multi-threaded servers.
  */
-public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
+public class LockiPrefixesPlugin extends JavaPlugin {
 
     private static final String CHANGELOG_RAW_URL = "https://raw.githubusercontent.com/leifiyoo/lockiprefixes/main/CHANGELOG.json";
     private static final String CHANGELOG_PAGE_URL = "https://github.com/leifiyoo/lockiprefixes/blob/main/CHANGELOG.json";
@@ -105,9 +99,6 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
                 missingDependencies.add("LuckPerms");
             }
         }
-
-        // Register admin join listener for notifications
-        getServer().getPluginManager().registerEvents(this, this);
 
         updateNotifier = new UpdateNotifier(this, CHANGELOG_RAW_URL, CHANGELOG_PAGE_URL);
         updateNotifier.start();
@@ -243,58 +234,6 @@ public class LockiPrefixesPlugin extends JavaPlugin implements Listener {
         } catch (ClassNotFoundException e) {
             return false;
         }
-    }
-
-    /**
-     * Notify admins about missing dependencies and secure profile on join
-     */
-    @EventHandler
-    public void onAdminJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        
-        if (!player.hasPermission("lockiprefixes.notify")) {
-            return;
-        }
-
-        // Delay the message slightly so it appears after join messages
-        getServer().getGlobalRegionScheduler().runDelayed(this, task -> {
-            if (!player.isOnline()) return;
-            
-            // Warn about secure profile
-            if (secureProfileEnforced) {
-                player.sendMessage(Component.empty());
-                player.sendMessage(Component.text("⚠ LockiPrefixes - Setup Required!", NamedTextColor.GOLD, TextDecoration.BOLD));
-                player.sendMessage(Component.text("  Chat will not work until you disable secure chat!", NamedTextColor.RED));
-                player.sendMessage(Component.empty());
-                player.sendMessage(Component.text("  How to fix:", NamedTextColor.YELLOW));
-                player.sendMessage(Component.text("  1. Open ", NamedTextColor.GRAY)
-                    .append(Component.text("server.properties", NamedTextColor.WHITE)));
-                player.sendMessage(Component.text("  2. Set ", NamedTextColor.GRAY)
-                    .append(Component.text("enforce-secure-profile=false", NamedTextColor.GREEN)));
-                player.sendMessage(Component.text("  3. Restart the server", NamedTextColor.GRAY));
-                player.sendMessage(Component.empty());
-            }
-            
-            // Warn about missing dependencies
-            if (!missingDependencies.isEmpty()) {
-                player.sendMessage(Component.text("⚠ LockiPrefixes - Missing Dependencies!", NamedTextColor.GOLD, TextDecoration.BOLD));
-                
-                for (String dep : missingDependencies) {
-                    if (dep.contains("optional")) {
-                        player.sendMessage(Component.text("  • ", NamedTextColor.GRAY)
-                            .append(Component.text(dep, NamedTextColor.YELLOW)));
-                    } else {
-                        player.sendMessage(Component.text("  • ", NamedTextColor.GRAY)
-                            .append(Component.text(dep + " is not installed!", NamedTextColor.RED)));
-                    }
-                }
-                
-                if (!luckPermsAvailable) {
-                    player.sendMessage(Component.text("  → Chat formatting is DISABLED!", NamedTextColor.RED, TextDecoration.ITALIC));
-                }
-                player.sendMessage(Component.empty());
-            }
-        }, 40L); // 2 second delay
     }
 
     /**

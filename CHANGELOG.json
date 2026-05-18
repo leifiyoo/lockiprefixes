@@ -1,8 +1,17 @@
 {
   "project": "LockiPrefixes",
-  "latestVersion": "3.0.3",
+  "latestVersion": "3.0.4",
   "updatedAt": "2026-05-18",
   "entries": [
+    {
+      "version": "3.0.4",
+      "date": "2026-05-18",
+      "changes": [
+        "Changed update visibility to the explicit lockiprefixes.notify permission, which defaults to operators only.",
+        "Removed in-game missing dependency and secure profile join warnings; those setup notices now stay in the server console.",
+        "Removed the latest-module extra plugin chat logger so the console no longer shows duplicate [LockiPrefixes] chat lines."
+      ]
+    },
     {
       "version": "3.0.3",
       "date": "2026-05-18",

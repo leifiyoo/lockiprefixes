@@ -21,6 +21,9 @@ permissions:
   lockiprefixes.chatcolor:
     description: Allows using color codes in chat
     default: false
+  lockiprefixes.notify:
+    description: Receives update notifications
+    default: op
   lockiprefixes.menu:
     description: Allows opening the Prefix Manager GUI
     default: true
