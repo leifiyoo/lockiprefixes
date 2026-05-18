@@ -10,6 +10,7 @@ import de.locki.lockiprefixes.gui.PrefixMenuManager;
 import de.locki.lockiprefixes.lp.LuckPermsFacade;
 import de.locki.lockiprefixes.papi.LockiPrefixesExpansion;
 import de.locki.lockiprefixes.placeholder.PlayerData;
+import de.locki.lockiprefixes.tablist.SimpleTablistManager;
 import de.locki.lockiprefixes.update.UpdateNotifier;
 import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
@@ -32,6 +33,7 @@ public class LockiPrefixesPlugin extends JavaPlugin {
     private LuckPermsFacade luckPermsFacade;
     private ChatFormatter chatFormatter;
     private PrefixMenuManager prefixMenuManager;
+    private SimpleTablistManager tablistManager;
     private UpdateNotifier updateNotifier;
 
     @Override
@@ -40,6 +42,10 @@ public class LockiPrefixesPlugin extends JavaPlugin {
 
         // Save default config
         saveDefaultConfig();
+        if (LockiConfig.ensureDefaultRankFormats(getConfig())) {
+            saveConfig();
+            reloadConfig();
+        }
 
         // Load configuration
         lockiConfig = new LockiConfig();
@@ -65,6 +71,11 @@ public class LockiPrefixesPlugin extends JavaPlugin {
             new LegacyChatListener(this, chatFormatter, luckPermsFacade),
             this
         );
+
+        if (!isTabPluginAvailable()) {
+            tablistManager = new SimpleTablistManager(this, chatFormatter, luckPermsFacade);
+            getServer().getPluginManager().registerEvents(tablistManager, this);
+        }
 
         // Initialize Prefix Manager GUI
         prefixMenuManager = new PrefixMenuManager(this, luckPermsFacade);
@@ -140,7 +151,17 @@ public class LockiPrefixesPlugin extends JavaPlugin {
         lockiConfig.load(getConfig());
         luckPermsFacade.clearCache();
         chatFormatter = new ChatFormatter(lockiConfig, luckPermsFacade, false);
+        if (tablistManager != null) {
+            tablistManager.setChatFormatter(chatFormatter);
+            tablistManager.updateAll();
+        }
         getLogger().info("Configuration reloaded.");
+    }
+
+    private boolean isTabPluginAvailable() {
+        return getServer().getPluginManager().getPlugin("TAB") != null
+            || getServer().getPluginManager().getPlugin("tab-master") != null
+            || getServer().getPluginManager().getPlugin("TABReborn") != null;
     }
 
     public static LockiPrefixesPlugin getInstance() {

@@ -83,6 +83,38 @@ group-formats:
     unicode-prefix: "✦"
     priority: 100
 
+# Modern rank formats used by chat, tablist, and PlaceholderAPI.
+# Missing entries are also added automatically to existing configs on startup.
+groups:
+  default:
+    chat-format: "&7{name} &7» &f{message}"
+    tablist-format: "&7{name}"
+    priority: 0
+  vip:
+    chat-format: "&a&lVIP &7| &f{name} &7» &f{message}"
+    tablist-format: "&a&lVIP &7| &f{name}"
+    priority: 10
+  mvp:
+    chat-format: "&b&lMVP &7| &f{name} &7» &f{message}"
+    tablist-format: "&b&lMVP &7| &f{name}"
+    priority: 20
+  helper:
+    chat-format: "&e&lHelper &7| &f{name} &7» &f{message}"
+    tablist-format: "&e&lHelper &7| &f{name}"
+    priority: 50
+  moderator:
+    chat-format: "&6&lMod &7| &f{name} &7» &f{message}"
+    tablist-format: "&6&lMod &7| &f{name}"
+    priority: 60
+  admin:
+    chat-format: "&c&lAdmin &7| &f{name} &7» &f{message}"
+    tablist-format: "&c&lAdmin &7| &f{name}"
+    priority: 80
+  owner:
+    chat-format: "&4&lOwner &7| &f{name} &7» &f{message}"
+    tablist-format: "&4&lOwner &7| &f{name}"
+    priority: 100
+
 # ============================================
 # WORLD-SPECIFIC FORMATS
 # ============================================

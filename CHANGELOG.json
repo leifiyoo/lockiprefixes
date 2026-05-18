@@ -1,8 +1,19 @@
 {
   "project": "LockiPrefixes",
-  "latestVersion": "3.0.4",
+  "latestVersion": "3.0.5",
   "updatedAt": "2026-05-18",
   "entries": [
+    {
+      "version": "3.0.5",
+      "date": "2026-05-18",
+      "changes": [
+        "Fixed older variants not showing visible rank styles for manually assigned LuckPerms groups such as owner.",
+        "Legacy, mid, and modern configs now include the same default rank format presets as the latest variant.",
+        "Existing older configs are automatically seeded with missing default rank formats on startup without overwriting custom values.",
+        "Added a lightweight internal tablist updater for legacy, mid, and modern variants when the TAB plugin is not installed.",
+        "Older tablists now refresh when LuckPerms recalculates user data, such as after changing a player's parent group while they are online."
+      ]
+    },
     {
       "version": "3.0.4",
       "date": "2026-05-18",
