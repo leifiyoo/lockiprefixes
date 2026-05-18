@@ -34,6 +34,16 @@ public class LockiConfig {
 
     private static final Logger LOG = Logger.getLogger("LockiPrefixes");
 
+    private static final String[][] DEFAULT_RANK_FORMATS = new String[][] {
+        {"default", "&7{name} &7» &f{message}", "&7{name}", "0"},
+        {"vip", "&a&lVIP &7| &f{name} &7» &f{message}", "&a&lVIP &7| &f{name}", "10"},
+        {"mvp", "&b&lMVP &7| &f{name} &7» &f{message}", "&b&lMVP &7| &f{name}", "20"},
+        {"helper", "&e&lHelper &7| &f{name} &7» &f{message}", "&e&lHelper &7| &f{name}", "50"},
+        {"moderator", "&6&lMod &7| &f{name} &7» &f{message}", "&6&lMod &7| &f{name}", "60"},
+        {"admin", "&c&lAdmin &7| &f{name} &7» &f{message}", "&c&lAdmin &7| &f{name}", "80"},
+        {"owner", "&4&lOwner &7| &f{name} &7» &f{message}", "&4&lOwner &7| &f{name}", "100"}
+    };
+
     // Placeholder separator for {prefixes} and {suffixes}
     private String prefixSeparator = "";
     private String suffixSeparator = "";
@@ -157,6 +167,29 @@ public class LockiConfig {
                 serverLeaderboardFormats.put(server.toLowerCase(), serverLbSection.getString(server));
             }
         }
+    }
+
+    /**
+     * Adds current default rank formats to existing configs without overwriting user edits.
+     */
+    public static boolean ensureDefaultRankFormats(FileConfiguration config) {
+        boolean changed = false;
+        for (String[] rank : DEFAULT_RANK_FORMATS) {
+            String base = "groups." + rank[0] + ".";
+            if (!config.contains(base + "chat-format")) {
+                config.set(base + "chat-format", rank[1]);
+                changed = true;
+            }
+            if (!config.contains(base + "tablist-format")) {
+                config.set(base + "tablist-format", rank[2]);
+                changed = true;
+            }
+            if (!config.contains(base + "priority")) {
+                config.set(base + "priority", Integer.parseInt(rank[3]));
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     public String getDefaultChatFormat() {
