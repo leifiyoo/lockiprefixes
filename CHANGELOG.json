@@ -1,8 +1,17 @@
 {
   "project": "LockiPrefixes",
-  "latestVersion": "3.0.1",
+  "latestVersion": "3.0.2",
   "updatedAt": "2026-05-18",
   "entries": [
+    {
+      "version": "3.0.2",
+      "date": "2026-05-18",
+      "changes": [
+        "Redesigned the update notification into a compact LockiPrefixes message with version details and a short 'Neu' section.",
+        "Update notifications now include the first changelog highlights from the latest release metadata.",
+        "Removed the repeating 24-hour update check so remote update checks only run once during server startup; join notifications reuse the cached startup result."
+      ]
+    },
     {
       "version": "3.0.1",
       "date": "2026-05-18",
