@@ -7,6 +7,7 @@
       "version": "3.0.4",
       "date": "2026-05-18",
       "changes": [
+        "Updated to 26.1.x.",
         "Maintenance cleanup for admin notices and console output.",
         "Update notifications are now limited to players with the lockiprefixes.notify permission, which defaults to server operators.",
         "Missing dependency and secure-profile setup warnings stay in the server console instead of being sent to Minecraft chat on join.",
