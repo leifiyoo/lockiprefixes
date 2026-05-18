@@ -1,8 +1,17 @@
 {
   "project": "LockiPrefixes",
   "latestVersion": "3.0.1",
-  "updatedAt": "2026-02-26",
+  "updatedAt": "2026-05-18",
   "entries": [
+    {
+      "version": "3.0.1",
+      "date": "2026-05-18",
+      "changes": [
+        "Refreshed README badges with larger branded badges and updated Minecraft support labels through 1.21.11 / 26.1.x.",
+        "Updated the latest module to compile against Paper API 26.1.2 build 64 stable while keeping Java 21 bytecode output for older latest-line servers.",
+        "Set project version to 3.0.1 across all modules."
+      ]
+    },
     {
       "version": "3.0.0",
       "date": "2026-02-26",
